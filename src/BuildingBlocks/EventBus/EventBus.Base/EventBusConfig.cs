@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventBus.Base.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace EventBus.Base
         public string EventNameSuffix { get; init; } = "IntegrationEvent";
         public EventBusType EventBusType { get; init; } = EventBusType.RabbitMQ;
 
-        public object Connection { get; set; }
+        public EventBusConnection? Connection { get; set; }
         public bool DeleteEventPrefix => !string.IsNullOrWhiteSpace(EventNamePrefix);
         public bool DeleteEventSuffix => !string.IsNullOrWhiteSpace(EventNameSuffix);
     }
