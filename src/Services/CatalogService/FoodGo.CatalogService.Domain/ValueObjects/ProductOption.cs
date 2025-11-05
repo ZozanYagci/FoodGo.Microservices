@@ -11,6 +11,10 @@ namespace FoodGo.CatalogService.Domain.ValueObjects
         public string Name { get; }
         public Money AdditionalPrice { get; }
 
+        private ProductOption()
+        {
+
+        }
         public ProductOption(string name, Money additionalPrice)
         {
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Ürün seçimi boş geçilemez") : name;

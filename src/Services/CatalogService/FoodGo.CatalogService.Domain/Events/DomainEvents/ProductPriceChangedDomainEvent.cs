@@ -12,3 +12,4 @@ namespace FoodGo.CatalogService.Domain.Events.DomainEvents
     {
         public DateTime OccuredOn { get; } = DateTime.UtcNow;
     }
+}

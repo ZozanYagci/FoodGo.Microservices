@@ -11,6 +11,11 @@ namespace FoodGo.CatalogService.Domain.ValueObjects
         public decimal Amount { get; }
         public string Currency { get; }
 
+        private Money()
+        {
+            
+        }
+
         public Money(decimal amount, string currency = "TRY")
         {
             if (amount < 0) throw new ArgumentException("Miktar negatif olamaz", nameof(amount));
