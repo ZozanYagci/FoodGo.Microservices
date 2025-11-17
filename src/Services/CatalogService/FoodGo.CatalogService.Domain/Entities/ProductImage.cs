@@ -1,4 +1,4 @@
-﻿using FoodGo.CatalogService.Domain.Common;
+﻿using FoodGo.CatalogService.Domain.SeedWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;

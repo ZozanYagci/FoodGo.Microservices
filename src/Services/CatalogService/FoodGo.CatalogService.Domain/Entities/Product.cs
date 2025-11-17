@@ -1,4 +1,4 @@
-﻿using FoodGo.CatalogService.Domain.Common;
+﻿using FoodGo.CatalogService.Domain.SeedWork;
 using FoodGo.CatalogService.Domain.Events.DomainEvents;
 using FoodGo.CatalogService.Domain.ValueObjects;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Domain.Entities
 {
-    public class Product : AuditableEntity
+    public class Product : AuditableEntity, IAggregateRoot
     {
         public string Name { get; private set; }
         public string Description { get; private set; }
@@ -41,7 +41,7 @@ namespace FoodGo.CatalogService.Domain.Entities
             _prices.Add(price);
 
             // Domain event: product created
-            DomainEvents.Add(new ProductCreatedDomainEvent(this.Id));
+            AddDomainEvent(new ProductCreatedDomainEvent(this.Id));
             TouchCreated();
 
         }
@@ -64,7 +64,7 @@ namespace FoodGo.CatalogService.Domain.Entities
         public void ChangePrice(Money newPrice)
         {
             var current = _prices.OrderByDescending(p => p.From).FirstOrDefault();
-            if (current != null && current.Price.Equals(newPrice)) return;
+            if (current?.Price.Equals(newPrice) == true) return;
 
             if (current != null) current.Close(DateTime.UtcNow);
 
@@ -73,7 +73,7 @@ namespace FoodGo.CatalogService.Domain.Entities
             TouchUpdated();
 
             //raise domain event
-            DomainEvents.Add(new ProductPriceChangedDomainEvent(this.Id, newPrice));
+            AddDomainEvent(new ProductPriceChangedDomainEvent(this.Id, newPrice));
         }
 
         public void AddImage(string url, bool isPrimary = false)
@@ -87,8 +87,5 @@ namespace FoodGo.CatalogService.Domain.Entities
             TouchUpdated();
         }
 
-
-        // domain events helper (simple list)
-        public List<IDomainEvent> DomainEvents { get; } = new();
     }
 }

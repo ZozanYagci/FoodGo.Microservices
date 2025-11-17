@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FoodGo.CatalogService.Domain.Common
+namespace FoodGo.CatalogService.Domain.SeedWork
 {
     // her entity'nin ne zaman oluşturulduğunu ve güncellendiğini kaydeder
     public abstract class AuditableEntity : BaseEntity

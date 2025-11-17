@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FoodGo.CatalogService.Domain.SeedWork;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Domain.ValueObjects
 {
-    public sealed class ProductOption : IEquatable<ProductOption>
+    public sealed class ProductOption : ValueObject
     {
         public string Name { get; }
         public Money AdditionalPrice { get; }
@@ -21,8 +22,14 @@ namespace FoodGo.CatalogService.Domain.ValueObjects
             AdditionalPrice = additionalPrice ?? throw new ArgumentNullException(nameof(additionalPrice));
 
         }
-        public bool Equals(ProductOption? other) => other is not null && Name == other.Name && AdditionalPrice.Equals(other.AdditionalPrice);
-        public override int GetHashCode() => HashCode.Combine(Name, AdditionalPrice);
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Name;
+            yield return AdditionalPrice;
+        }
+
+        public override string ToString() => $"{Name} (+{AdditionalPrice})";
 
     }
 }

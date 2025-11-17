@@ -1,4 +1,4 @@
-﻿using FoodGo.CatalogService.Domain.Common;
+﻿using FoodGo.CatalogService.Domain.SeedWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Domain.Entities
 {
-    public class Restaurant : AuditableEntity
+    public class Restaurant : AuditableEntity, IAggregateRoot
     {
         public string Name { get; private set; }
         public bool IsActive { get; private set; } = true;

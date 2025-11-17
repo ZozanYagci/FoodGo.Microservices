@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <Folder Include="Aggregates\" />
-    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.1.0" />
   </ItemGroup>
 
   <ItemGroup>

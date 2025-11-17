@@ -1,4 +1,6 @@
 ﻿using FoodGo.CatalogService.Domain.Entities;
+using FoodGo.CatalogService.Domain.SeedWork;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,9 +12,31 @@ namespace FoodGo.CatalogService.Infrastructure.Context
 {
     public class CatalogDbContext : DbContext
     {
-        public CatalogDbContext(DbContextOptions<CatalogDbContext> options) : base(options)
-        {
 
+        private readonly IMediator _mediator;
+        public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IMediator mediator) : base(options)
+        {
+            _mediator = mediator;
+        }
+
+        private async Task DispatchDomainEventsAsync(CancellationToken cancellationToken = default)
+        {
+            var domainEntities = ChangeTracker
+                .Entries<BaseEntity>()
+                .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
+                .ToList();
+
+            var domainEvents = domainEntities
+                .SelectMany(x => x.Entity.DomainEvents)
+                .ToList();
+
+            domainEntities.ForEach(entity => entity.Entity.ClearDomainEvents());
+
+            var publishTasks = domainEvents
+                .Select(domainEvent => _mediator.Publish(domainEvent, cancellationToken))
+                .ToArray();
+
+            await Task.WhenAll(publishTasks);
         }
 
         public DbSet<Restaurant> Restaurants => Set<Restaurant>();
@@ -26,6 +50,18 @@ namespace FoodGo.CatalogService.Infrastructure.Context
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogDbContext).Assembly);
+        }
+
+        // önce db'ye yaz, sonra domain event'leri publish et.
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var result = await base.SaveChangesAsync(cancellationToken);
+
+            if (_mediator != null)
+            {
+                await DispatchDomainEventsAsync(cancellationToken);
+            }
+            return result;
         }
     }
 }

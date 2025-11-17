@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FoodGo.CatalogService.Domain.Common
+namespace FoodGo.CatalogService.Domain.SeedWork
 {
-    public interface IDomainEvent
+    public interface IAggregateRoot
     {
-        DateTime OccuredOn { get; }
     }
 }
