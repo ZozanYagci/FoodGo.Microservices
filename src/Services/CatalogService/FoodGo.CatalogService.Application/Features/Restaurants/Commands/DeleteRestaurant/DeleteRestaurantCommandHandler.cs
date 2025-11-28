@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
@@ -26,14 +27,14 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
             var restaurant = await _restaurantRepository.GetByIdAsync(command.Request.Id);
 
             if (restaurant is null)
-                throw new Exception("Restaurant bulunamadı.");
+                throw new Exception(RestaurantMessages.RestaurantNotFound);
 
             _restaurantRepository.Delete(restaurant);
 
             var response = new DeletedRestaurantResponse
             {
                 Id = restaurant.Id,
-                Message = "Restaurant başarıyla silindi."
+                Message = RestaurantMessages.RestaurantDeleted
             };
 
             return response;

@@ -13,7 +13,6 @@
   <ItemGroup>
     <Folder Include="Features\Categories\" />
     <Folder Include="Features\Products\" />
-    <Folder Include="Features\Restaurants\Constants\" />
   </ItemGroup>
 
   <ItemGroup>

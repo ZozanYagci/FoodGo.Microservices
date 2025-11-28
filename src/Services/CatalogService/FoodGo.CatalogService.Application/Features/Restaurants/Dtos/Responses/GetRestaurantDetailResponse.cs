@@ -12,6 +12,6 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses
         public string Name { get; set; } = default!;
         public string? Address { get; set; }
         public bool IsActive { get; set; }
-        public string Message { get; set; } = default!;
+        
     }
 }

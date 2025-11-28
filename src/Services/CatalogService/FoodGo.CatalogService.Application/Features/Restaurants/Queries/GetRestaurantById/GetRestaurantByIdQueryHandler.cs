@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
@@ -26,10 +27,9 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRest
             var restaurant = await _restaurantRepository.GetByIdAsync(query.Request.Id);
 
             if (restaurant is null)
-                throw new Exception("Restaurant bulunamadı.");
+                throw new Exception(RestaurantMessages.RestaurantNotFound);
 
             var response = _mapper.Map<GetRestaurantDetailResponse>(restaurant);
-            response.Message = "Restaurant detayları getirildi.";
 
             return response;
         }

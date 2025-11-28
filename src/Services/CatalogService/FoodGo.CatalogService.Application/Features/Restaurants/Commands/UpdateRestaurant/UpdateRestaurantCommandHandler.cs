@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
@@ -27,7 +28,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
 
 
             if (restaurant is null)
-                throw new Exception("Restaurant bulunamadı.");
+                throw new Exception(RestaurantMessages.RestaurantNotFound);
 
             _mapper.Map(command.Request, restaurant);
 
@@ -36,7 +37,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
             var response = new UpdatedRestaurantResponse
             {
                 Id = restaurant.Id,
-                Message = "Restaurant başarıyla güncellendi."
+                Message = RestaurantMessages.RestaurantUpdated
             };
 
             return response;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
@@ -29,7 +30,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Create
             _restaurantRepository.Add(restaurant);
 
             var response = _mapper.Map<CreatedRestaurantResponse>(restaurant);
-            response.Message = "Restaurant başarıyla oluşturuldu.";
+            response.Message = RestaurantMessages.RestaurantCreated;
 
             return response;
         }
