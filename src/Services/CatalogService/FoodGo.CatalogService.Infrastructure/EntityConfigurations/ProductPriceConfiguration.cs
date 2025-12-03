@@ -27,10 +27,12 @@ namespace FoodGo.CatalogService.Infrastructure.EntityConfigurations
             builder.OwnsOne(p => p.Price, money =>
             {
                 money.Property(m => m.Amount)
+                .HasPrecision(18, 2)
                 .HasColumnName("PriceAmount")
                 .IsRequired();
 
                 money.Property(m => m.Currency)
+                .HasMaxLength(3)
                 .HasColumnName("PriceCurrency")
                 .IsRequired();
             });

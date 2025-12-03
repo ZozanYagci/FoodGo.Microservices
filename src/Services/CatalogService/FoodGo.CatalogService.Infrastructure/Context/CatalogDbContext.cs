@@ -13,8 +13,8 @@ namespace FoodGo.CatalogService.Infrastructure.Context
     public class CatalogDbContext : DbContext
     {
 
-        private readonly IMediator _mediator;
-        public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IMediator mediator) : base(options)
+        private readonly IMediator? _mediator;
+        public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IMediator? mediator = null) : base(options)
         {
             _mediator = mediator;
         }

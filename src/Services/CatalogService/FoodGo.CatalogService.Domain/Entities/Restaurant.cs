@@ -1,4 +1,5 @@
 ﻿using FoodGo.CatalogService.Domain.SeedWork;
+using FoodGo.CatalogService.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace FoodGo.CatalogService.Domain.Entities
     {
         public string Name { get; private set; }
         public bool IsActive { get; private set; } = true;
-        public string? Address { get; private set; }
+
+        public Address Address { get; private set; } //value object
 
         private readonly List<Guid> _categoryIds = new();
         public IReadOnlyCollection<Guid> CategoryIds => _categoryIds.AsReadOnly();
@@ -21,16 +23,22 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         }
 
-        public Restaurant(string name, string? address = null)
+        public Restaurant(string name, Address address = null)
         {
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("restaurant adı boş olamaz") : name;
-            Address = address;
+            Address = address ?? throw new DomainException("Adres bilgisi boş olamaz.");
         }
 
         public void UpdateName(string newName)
         {
             if (string.IsNullOrWhiteSpace(newName)) throw new DomainException("restaurant adı boş olamaz");
             Name = newName;
+            TouchUpdated();
+        }
+
+        public void UpdateAddress(Address newAddress)
+        {
+            Address = newAddress ?? throw new DomainException("Yeni adres boş olamaz");
             TouchUpdated();
         }
 

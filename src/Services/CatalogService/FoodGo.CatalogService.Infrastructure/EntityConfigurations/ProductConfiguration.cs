@@ -61,8 +61,13 @@ namespace FoodGo.CatalogService.Infrastructure.EntityConfigurations
 
                 option.OwnsOne(o => o.AdditionalPrice, money =>
                 {
-                    money.Property(m => m.Amount).HasColumnName("AdditionalPriceAmount");
-                    money.Property(m => m.Currency).HasColumnName("AdditionalPriceCurrency");
+                    money.Property(m => m.Amount)
+                    .HasPrecision(18, 2)
+                    .HasColumnName("AdditionalPriceAmount");
+
+                    money.Property(m => m.Currency)
+                    .HasMaxLength(3)
+                    .HasColumnName("AdditionalPriceCurrency");
                 });
             });
         }
