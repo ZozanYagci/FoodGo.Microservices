@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;
-        public string? Address { get; set; }
+        public AddressDto? Address { get; set; }
         public bool IsActive { get; set; }
         
     }

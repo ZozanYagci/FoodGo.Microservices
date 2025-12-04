@@ -2,6 +2,7 @@
 using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
+using FoodGo.CatalogService.Domain.ValueObjects;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -24,15 +25,23 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
 
         public async Task<UpdatedRestaurantResponse> Handle(UpdateRestaurantCommand command, CancellationToken cancellationToken)
         {
-            var restaurant = await _restaurantRepository.GetByIdAsync(command.Request.Id);
+
+            var request = command.Request;
+            var restaurant = await _restaurantRepository.GetByIdAsync(request.Id);
 
 
             if (restaurant is null)
                 throw new Exception(RestaurantMessages.RestaurantNotFound);
 
-            _mapper.Map(command.Request, restaurant);
+            restaurant.UpdateName(request.Name);
 
+            if (request.Address != null)
+            {
+                var newAddress = _mapper.Map<Address>(request.Address);
+                restaurant.UpdateAddress(newAddress);
+            }
             _restaurantRepository.Update(restaurant);
+
 
             var response = new UpdatedRestaurantResponse
             {
@@ -41,7 +50,6 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
             };
 
             return response;
-
 
         }
     }
