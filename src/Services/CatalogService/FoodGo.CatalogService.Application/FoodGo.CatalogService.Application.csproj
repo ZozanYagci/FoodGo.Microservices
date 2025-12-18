@@ -13,10 +13,12 @@
   <ItemGroup>
     <Folder Include="Features\Categories\" />
     <Folder Include="Features\Products\" />
+    <Folder Include="Features\Restaurants\Rules\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.1.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
 
 </Project>
