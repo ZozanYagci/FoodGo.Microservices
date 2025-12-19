@@ -1,4 +1,4 @@
-
+using FoodGo.CatalogService.Application.Common.Extensions;
 using FoodGo.CatalogService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CatalogDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
 b => b.MigrationsAssembly(typeof(CatalogDbContext).Assembly.FullName)));
+
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 
