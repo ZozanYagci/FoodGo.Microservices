@@ -8,10 +8,11 @@ namespace FoodGo.CatalogService.Api.Middlewares
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
-
-        public ExceptionHandlingMiddleware(RequestDelegate next)
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -22,6 +23,7 @@ namespace FoodGo.CatalogService.Api.Middlewares
             }
             catch (ValidationException ex)
             {
+                _logger.LogDebug("Validation failed for request {Path}", context.Request.Path);
                 await HandleValidationException(context, ex);
             }
             catch (DomainException ex)
@@ -30,6 +32,7 @@ namespace FoodGo.CatalogService.Api.Middlewares
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unhandled exception occurred.");
                 await HandleInternalServerError(context, ex);
             }
         }
@@ -53,22 +56,22 @@ namespace FoodGo.CatalogService.Api.Middlewares
                 errors
             };
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
         }
 
         private static async Task HandleDomainException(HttpContext context, DomainException ex)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
             context.Response.ContentType = "application/json";
 
             var response = new
             {
                 title = "Business Rule Violation",
-                status = 400,
+                status = 409,
                 detail = ex.Message
             };
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
         }
 
         private static async Task HandleInternalServerError(HttpContext context, Exception ex)
@@ -83,8 +86,11 @@ namespace FoodGo.CatalogService.Api.Middlewares
                 detail = "Beklenmeyen bir hata oluştu."
             };
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
         }
+
+
+        private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
     }
 
 }
