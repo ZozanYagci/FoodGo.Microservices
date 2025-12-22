@@ -1,4 +1,4 @@
-using FoodGo.CatalogService.Api.Middlewares;
+using FoodGo.CatalogService.Api.Extensions;
 using FoodGo.CatalogService.Application.Common.Extensions;
 using FoodGo.CatalogService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +27,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseExceptionHandling();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
