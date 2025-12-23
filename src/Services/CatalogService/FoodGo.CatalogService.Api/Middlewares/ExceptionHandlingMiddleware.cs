@@ -32,7 +32,7 @@ namespace FoodGo.CatalogService.Api.Middlewares
                     g => g.Key,
                     g => g.Select(e => e.ErrorMessage).ToArray());
 
-                var problemsDetails = new HttpValidationProblemDetails(errors);
+                var problemsDetails = new ValidationProblemDetails(errors);
 
                 await WriteProblemDetailsAsync(context, problemsDetails);
             }
