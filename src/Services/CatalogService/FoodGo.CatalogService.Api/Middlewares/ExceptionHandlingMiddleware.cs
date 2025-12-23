@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FoodGo.CatalogService.Api.ProblemDetails;
 using FoodGo.CatalogService.Domain.SeedWork;
 using System.Net;
 using System.Text.Json;
@@ -24,73 +25,43 @@ namespace FoodGo.CatalogService.Api.Middlewares
             catch (ValidationException ex)
             {
                 _logger.LogDebug("Validation failed for request {Path}", context.Request.Path);
-                await HandleValidationException(context, ex);
+
+                var errors = ex.Errors
+                    .GroupBy(e => e.PropertyName)
+                    .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray());
+
+                var problemsDetails = new HttpValidationProblemDetails(errors);
+
+                await WriteProblemDetailsAsync(context, problemsDetails);
             }
             catch (DomainException ex)
             {
-                await HandleDomainException(context, ex);
+                _logger.LogWarning("Business rule violation : {Message}", ex.Message);
+
+                var problemDetails = new BusinessProblemDetails(ex.Message);
+
+                await WriteProblemDetailsAsync(context, problemDetails);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred.");
-                await HandleInternalServerError(context, ex);
+
+                var problemDetails = new InternalServerErrorProblemDetails();
+
+                await WriteProblemDetailsAsync(context, problemDetails);
             }
         }
 
-        private static async Task HandleValidationException(HttpContext context, ValidationException ex)
+        private static async Task WriteProblemDetailsAsync(HttpContext context, Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = problemDetails.Status!.Value;
+            context.Response.ContentType = "application/problem+json";
 
-            var errors = ex.Errors
-                .GroupBy(e => e.PropertyName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(e => e.ErrorMessage).ToArray()
-                );
+            await context.Response.WriteAsJsonAsync(problemDetails);
 
-            var response = new
-            {
-                title = "Validation Error",
-                status = 400,
-                errors
-            };
-
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
         }
-
-        private static async Task HandleDomainException(HttpContext context, DomainException ex)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-            context.Response.ContentType = "application/json";
-
-            var response = new
-            {
-                title = "Business Rule Violation",
-                status = 409,
-                detail = ex.Message
-            };
-
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
-        }
-
-        private static async Task HandleInternalServerError(HttpContext context, Exception ex)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
-
-            var response = new
-            {
-                title = "Internal Server Error",
-                status = 500,
-                detail = "Beklenmeyen bir hata oluştu."
-            };
-
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
-        }
-
-
-        private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
     }
 
 }
