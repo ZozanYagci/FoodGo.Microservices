@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
+using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
+using FoodGo.CatalogService.Domain.ValueObjects;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -16,16 +18,22 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Create
     {
         private readonly IRestaurantRepository _restaurantRepository;
         private readonly IMapper _mapper;
+        private readonly RestaurantBusinessRules _businessRules;
 
-        public CreateRestaurantCommandHandler(IRestaurantRepository restaurantRepository, IMapper mapper)
+        public CreateRestaurantCommandHandler(IRestaurantRepository restaurantRepository, IMapper mapper, RestaurantBusinessRules businessRules)
         {
             _restaurantRepository = restaurantRepository;
             _mapper = mapper;
+            _businessRules = businessRules;
         }
 
         public async Task<CreatedRestaurantResponse> Handle(CreateRestaurantCommand command, CancellationToken cancellationToken)
         {
-            var restaurant = _mapper.Map<Restaurant>(command.Request);
+            await _businessRules.RestaurantNameMustBeUnique(command.Request.Name);
+
+            var restaurant = new Restaurant(
+                command.Request.Name,
+                _mapper.Map<Address>(command.Request.Address));
 
             _restaurantRepository.Add(restaurant);
 

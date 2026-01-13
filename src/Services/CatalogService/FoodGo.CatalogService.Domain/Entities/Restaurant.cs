@@ -1,4 +1,5 @@
 ﻿using FoodGo.CatalogService.Domain.SeedWork;
+using FoodGo.CatalogService.Domain.SeedWork.DomainErrors;
 using FoodGo.CatalogService.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -25,26 +26,39 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         public Restaurant(string name, Address address = null)
         {
-            Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("restaurant adı boş olamaz") : name;
-            Address = address ?? throw new DomainException("Adres bilgisi boş olamaz.");
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException(RestaurantErrors.NameCannotBeEmpty);
+
+            Name = name;
+            Address = address ?? throw new DomainException(RestaurantErrors.AddressCannotBeNull);
         }
 
         public void UpdateName(string newName)
         {
-            if (string.IsNullOrWhiteSpace(newName)) throw new DomainException("restaurant adı boş olamaz");
+            if (string.IsNullOrWhiteSpace(newName)) throw new DomainException(SeedWork.DomainErrors.RestaurantErrors.NameCannotBeEmpty);
+
+            if (Name == newName)
+                return;
+
             Name = newName;
             TouchUpdated();
         }
 
         public void UpdateAddress(Address newAddress)
         {
-            Address = newAddress ?? throw new DomainException("Yeni adres boş olamaz");
+            Address = newAddress ?? throw new DomainException(RestaurantErrors.AddressCannotBeNull);
             TouchUpdated();
         }
 
         public void AddCategory(Guid categoryId)
         {
-            if (!_categoryIds.Contains(categoryId)) _categoryIds.Add(categoryId);
+            if (!IsActive)
+                throw new DomainException(RestaurantErrors.RestaurantInactive);
+
+            if (_categoryIds.Contains(categoryId))
+                throw new DomainException(RestaurantErrors.CategoryAlreadyExist);
+
+            _categoryIds.Add(categoryId);
         }
 
         public void ToggleActive() => IsActive = !IsActive;

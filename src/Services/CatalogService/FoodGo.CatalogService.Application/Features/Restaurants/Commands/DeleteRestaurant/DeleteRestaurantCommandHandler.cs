@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
+using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
 using System;
@@ -14,20 +15,20 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
     public class DeleteRestaurantCommandHandler : IRequestHandler<DeleteRestaurantCommand, DeletedRestaurantResponse>
     {
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly RestaurantBusinessRules _businessRules;
 
-
-        public DeleteRestaurantCommandHandler(IRestaurantRepository restaurantRepository)
+        public DeleteRestaurantCommandHandler(IRestaurantRepository restaurantRepository, RestaurantBusinessRules businessRules)
         {
             _restaurantRepository = restaurantRepository;
-
+            _businessRules = businessRules;
         }
 
         public async Task<DeletedRestaurantResponse> Handle(DeleteRestaurantCommand command, CancellationToken cancellationToken)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(command.Request.Id);
 
-            if (restaurant is null)
-                throw new Exception(RestaurantMessages.RestaurantNotFound);
+            _businessRules.RestaurantMustExist(restaurant);
+            _businessRules.RestaurantMustBeActive(restaurant.IsActive);
 
             _restaurantRepository.Delete(restaurant);
 

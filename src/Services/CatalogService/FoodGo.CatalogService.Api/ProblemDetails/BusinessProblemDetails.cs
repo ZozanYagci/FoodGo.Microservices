@@ -2,10 +2,12 @@
 {
     public sealed class BusinessProblemDetails : BaseProblemDetails
     {
-        public BusinessProblemDetails(string detail)
+
+        public string ErrorCode { get; }
+        public BusinessProblemDetails(string errorCode)
             : base("Business Rule Violation", StatusCodes.Status409Conflict)
         {
-            Detail = detail;
+            ErrorCode = errorCode;
         }
     }
 }
