@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Common.Results;
 using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.DeleteRestaurant
 {
-    public class DeleteRestaurantCommandHandler : IRequestHandler<DeleteRestaurantCommand, DeletedRestaurantResponse>
+    public class DeleteRestaurantCommandHandler : IRequestHandler<DeleteRestaurantCommand, Result<DeletedRestaurantResponse>>
     {
         private readonly IRestaurantRepository _restaurantRepository;
         private readonly RestaurantBusinessRules _businessRules;
@@ -23,12 +24,18 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
             _businessRules = businessRules;
         }
 
-        public async Task<DeletedRestaurantResponse> Handle(DeleteRestaurantCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeletedRestaurantResponse>> Handle(DeleteRestaurantCommand command, CancellationToken cancellationToken)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(command.Request.Id);
 
-            _businessRules.RestaurantMustExist(restaurant);
-            _businessRules.RestaurantMustBeActive(restaurant.IsActive);
+            var existResult = _businessRules.RestaurantMustExist(restaurant);
+            if (existResult.IsFailure)
+                return Result<DeletedRestaurantResponse>.Failure(existResult.Error.Code);
+
+            var activeResult = _businessRules.RestaurantMustBeActive(restaurant!.IsActive);
+            if (activeResult.IsFailure)
+                return Result<DeletedRestaurantResponse>.Failure(activeResult.Error.Code);
+
 
             _restaurantRepository.Delete(restaurant);
 
@@ -38,7 +45,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
                 Message = RestaurantMessages.RestaurantDeleted
             };
 
-            return response;
+            return Result<DeletedRestaurantResponse>.Success(response);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FoodGo.CatalogService.Application.Interfaces.Repositories;
+﻿using FoodGo.CatalogService.Application.Common.Results;
+using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.SeedWork;
 using FoodGo.CatalogService.Domain.SeedWork.DomainErrors;
@@ -17,36 +18,46 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Rules
 
         }
 
-        public void RestaurantMustExist(Restaurant? restaurant)
+        public Result RestaurantMustExist(Restaurant? restaurant)
         {
             if (restaurant is null)
-                throw new DomainException(RestaurantErrors.RestaurantNotFound);
+                return Result.Failure(RestaurantErrors.RestaurantNotFound);
+
+            return Result.Success();
         }
 
-        public async Task RestaurantNameMustBeUnique(string name)
+        public async Task<Result> RestaurantNameMustBeUnique(string name)
         {
             var exists = await _restaurantRepository.Query().AnyAsync(r => r.Name == name);
 
             if (exists)
-                throw new DomainException(RestaurantErrors.NameAlreadyExists);
+                return Result.Failure(RestaurantErrors.NameAlreadyExists);
+
+            return Result.Success();
         }
 
-        public void RestaurantMustBeActive(bool isActive)
+        public Result RestaurantMustBeActive(bool isActive)
         {
             if (!isActive)
-                throw new DomainException(RestaurantErrors.RestaurantInactive);
+                return Result.Failure(RestaurantErrors.RestaurantInactive);
+
+            return Result.Success();
         }
 
-        public void CategoryCannotBeDuplicated(IEnumerable<string> existingCategories, string newCategory)
+        public Result CategoryCannotBeDuplicated(IEnumerable<string> existingCategories, string newCategory)
         {
             if (existingCategories.Any(c => c == newCategory))
-                throw new DomainException(RestaurantErrors.CategoryAlreadyExist);
+                return Result.Failure(RestaurantErrors.CategoryAlreadyExist);
+
+            return Result.Success();
         }
 
-        public void CategoryLimitCannotBeExceed(int currentCount, int maxLimit = 10)
+        public Result CategoryLimitCannotBeExceed(int currentCount, int maxLimit = 10)
         {
             if (currentCount >= maxLimit)
-                throw new DomainException(RestaurantErrors.CategoryLimitExceeded);
+                return Result.Failure(RestaurantErrors.CategoryLimitExceeded);
+
+            return Result.Success();
         }
     }
 }

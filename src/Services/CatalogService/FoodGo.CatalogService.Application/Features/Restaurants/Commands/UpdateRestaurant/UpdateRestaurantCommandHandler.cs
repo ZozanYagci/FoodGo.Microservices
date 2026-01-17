@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Common.Results;
 using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.UpdateRestaurant
 {
-    public class UpdateRestaurantCommandHandler : IRequestHandler<UpdateRestaurantCommand, UpdatedRestaurantResponse>
+    public class UpdateRestaurantCommandHandler : IRequestHandler<UpdateRestaurantCommand, Result<UpdatedRestaurantResponse>>
     {
         private readonly IRestaurantRepository _restaurantRepository;
         private readonly IMapper _mapper;
@@ -26,18 +27,30 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
             _businessRules = businessRules;
         }
 
-        public async Task<UpdatedRestaurantResponse> Handle(UpdateRestaurantCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdatedRestaurantResponse>> Handle(UpdateRestaurantCommand command, CancellationToken cancellationToken)
         {
 
             var request = command.Request;
             var restaurant = await _restaurantRepository.GetByIdAsync(request.Id);
 
-            _businessRules.RestaurantMustExist(restaurant);
-            _businessRules.RestaurantMustBeActive(restaurant.IsActive);
+            var existResult = _businessRules.RestaurantMustExist(restaurant);
+
+            if (existResult.IsFailure)
+                return Result<UpdatedRestaurantResponse>.Failure(existResult.Error.Code);
+
+            var activeResult = _businessRules.RestaurantMustBeActive(restaurant!.IsActive);
+
+            if (activeResult.IsFailure)
+                return Result<UpdatedRestaurantResponse>.Failure(activeResult.Error.Code);
+
 
             if (restaurant.Name != request.Name)
             {
-                await _businessRules.RestaurantNameMustBeUnique(request.Name);
+                var uniqueResult = await _businessRules.RestaurantNameMustBeUnique(request.Name);
+
+                if (uniqueResult.IsFailure)
+                    return Result<UpdatedRestaurantResponse>.Failure(uniqueResult.Error.Code);
+
                 restaurant.UpdateName(request.Name);
             }
 
@@ -56,7 +69,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
                 Message = RestaurantMessages.RestaurantUpdated
             };
 
-            return response;
+            return Result<UpdatedRestaurantResponse>.Success(response);
 
         }
     }
