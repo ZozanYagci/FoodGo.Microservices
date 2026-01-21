@@ -12,13 +12,13 @@ namespace FoodGo.CatalogService.Application.Common.Results
         private readonly T? _value;
 
         protected Result(T value)
-            : base(true, Error.None)
+            : base(true, Array.Empty<Error>())
         {
             _value = value;
         }
 
-        protected Result(Error error)
-            : base(false, error)
+        protected Result(IEnumerable<Error> errors)
+            : base(false, errors.ToArray())
         {
             _value = default;
         }
@@ -30,7 +30,10 @@ namespace FoodGo.CatalogService.Application.Common.Results
         public static Result<T> Success(T value)
             => new(value);
 
-        public static Result<T> Failure(string errorCode)
-            => new(new Error(errorCode));
+        public static Result<T> Failure(IEnumerable<Error> errors)
+            => new(errors);
+
+        public static Result<T> Failure(Error error)
+            => new(new[] { error });
     }
 }

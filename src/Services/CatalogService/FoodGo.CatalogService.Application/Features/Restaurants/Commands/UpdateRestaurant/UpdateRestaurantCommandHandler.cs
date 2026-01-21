@@ -36,12 +36,12 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
             var existResult = _businessRules.RestaurantMustExist(restaurant);
 
             if (existResult.IsFailure)
-                return Result<UpdatedRestaurantResponse>.Failure(existResult.Error.Code);
+                return Result<UpdatedRestaurantResponse>.Failure(existResult.Errors);
 
             var activeResult = _businessRules.RestaurantMustBeActive(restaurant!.IsActive);
 
             if (activeResult.IsFailure)
-                return Result<UpdatedRestaurantResponse>.Failure(activeResult.Error.Code);
+                return Result<UpdatedRestaurantResponse>.Failure(activeResult.Errors);
 
 
             if (restaurant.Name != request.Name)
@@ -49,7 +49,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Update
                 var uniqueResult = await _businessRules.RestaurantNameMustBeUnique(request.Name);
 
                 if (uniqueResult.IsFailure)
-                    return Result<UpdatedRestaurantResponse>.Failure(uniqueResult.Error.Code);
+                    return Result<UpdatedRestaurantResponse>.Failure(uniqueResult.Errors);
 
                 restaurant.UpdateName(request.Name);
             }

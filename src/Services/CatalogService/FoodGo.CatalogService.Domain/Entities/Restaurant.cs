@@ -27,15 +27,15 @@ namespace FoodGo.CatalogService.Domain.Entities
         public Restaurant(string name, Address address = null)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new DomainException(RestaurantErrors.NameCannotBeEmpty);
+                throw new DomainException(RestaurantRules.NameCannotBeEmpty);
 
             Name = name;
-            Address = address ?? throw new DomainException(RestaurantErrors.AddressCannotBeNull);
+            Address = address ?? throw new DomainException(RestaurantRules.AddressCannotBeNull);
         }
 
         public void UpdateName(string newName)
         {
-            if (string.IsNullOrWhiteSpace(newName)) throw new DomainException(SeedWork.DomainErrors.RestaurantErrors.NameCannotBeEmpty);
+            if (string.IsNullOrWhiteSpace(newName)) throw new DomainException(SeedWork.DomainErrors.RestaurantRules.NameCannotBeEmpty);
 
             if (Name == newName)
                 return;
@@ -46,17 +46,17 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         public void UpdateAddress(Address newAddress)
         {
-            Address = newAddress ?? throw new DomainException(RestaurantErrors.AddressCannotBeNull);
+            Address = newAddress ?? throw new DomainException(RestaurantRules.AddressCannotBeNull);
             TouchUpdated();
         }
 
         public void AddCategory(Guid categoryId)
         {
             if (!IsActive)
-                throw new DomainException(RestaurantErrors.RestaurantInactive);
+                throw new DomainException(RestaurantRules.RestaurantInactive);
 
             if (_categoryIds.Contains(categoryId))
-                throw new DomainException(RestaurantErrors.CategoryAlreadyExist);
+                throw new DomainException(RestaurantRules.CategoryAlreadyExist);
 
             _categoryIds.Add(categoryId);
         }

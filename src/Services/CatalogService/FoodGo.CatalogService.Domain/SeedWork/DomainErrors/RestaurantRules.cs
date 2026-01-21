@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Domain.SeedWork.DomainErrors
 {
-    public static class RestaurantErrors
+    public static class RestaurantRules
     {
         public const string NameCannotBeEmpty = "Restaurant.Name.CannotBeEmpty";
         public const string AddressCannotBeNull = "Restaurant.Address.CannotBeNull";

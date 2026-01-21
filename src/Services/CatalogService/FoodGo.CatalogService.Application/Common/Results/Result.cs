@@ -8,21 +8,24 @@ namespace FoodGo.CatalogService.Application.Common.Results
 {
     public class Result
     {
-        protected Result(bool isSuccess, Error error)
+        protected Result(bool isSuccess, IReadOnlyCollection<Error> errors)
         {
             IsSuccess = isSuccess;
-            Error = error;
+            Errors = errors.ToArray();
         }
 
         public bool IsSuccess { get; }
         public bool IsFailure => !IsSuccess;
 
-        public Error Error { get; }
+        public IReadOnlyCollection<Error> Errors { get; }
 
         public static Result Success()
-            => new(true, Error.None);
+            => new(true, Array.Empty<Error>());
 
-        public static Result Failure(string errorCode)
-            => new(false, new Error(errorCode));
+        public static Result Failure(IEnumerable<Error> errors)
+            => new(false, errors.ToArray());
+
+        public static Result Failure(Error error)
+            => new(false, new[] { error });
     }
 }

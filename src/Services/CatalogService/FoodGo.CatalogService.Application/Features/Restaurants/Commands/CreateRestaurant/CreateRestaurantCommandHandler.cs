@@ -35,7 +35,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Create
 
             if (uniqueNameResult.IsFailure)
                 return Result<CreatedRestaurantResponse>
-                    .Failure(uniqueNameResult.Error.Code);
+                    .Failure(uniqueNameResult.Errors);
 
             var restaurant = new Restaurant(
                 command.Request.Name,

@@ -36,14 +36,7 @@ namespace FoodGo.CatalogService.Api.Middlewares
 
                 await WriteProblemDetailsAsync(context, problemsDetails);
             }
-            catch (DomainException ex)
-            {
-                _logger.LogWarning("Business rule violation : {Message}", ex.Message);
-
-                var problemDetails = new BusinessProblemDetails(ex.Message);
-
-                await WriteProblemDetailsAsync(context, problemDetails);
-            }
+            
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred.");

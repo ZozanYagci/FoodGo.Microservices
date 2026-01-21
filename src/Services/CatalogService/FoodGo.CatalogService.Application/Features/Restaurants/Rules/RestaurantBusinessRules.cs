@@ -1,4 +1,5 @@
-﻿using FoodGo.CatalogService.Application.Common.Results;
+﻿using FoodGo.CatalogService.Application.Common.Errors;
+using FoodGo.CatalogService.Application.Common.Results;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.SeedWork;
@@ -21,7 +22,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Rules
         public Result RestaurantMustExist(Restaurant? restaurant)
         {
             if (restaurant is null)
-                return Result.Failure(RestaurantErrors.RestaurantNotFound);
+                return Result.Failure(RestaurantErrors.NotFound);
 
             return Result.Success();
         }

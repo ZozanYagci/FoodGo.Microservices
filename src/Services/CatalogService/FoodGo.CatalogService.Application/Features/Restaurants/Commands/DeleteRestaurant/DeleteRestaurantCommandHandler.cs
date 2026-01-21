@@ -30,11 +30,11 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
 
             var existResult = _businessRules.RestaurantMustExist(restaurant);
             if (existResult.IsFailure)
-                return Result<DeletedRestaurantResponse>.Failure(existResult.Error.Code);
+                return Result<DeletedRestaurantResponse>.Failure(existResult.Errors);
 
             var activeResult = _businessRules.RestaurantMustBeActive(restaurant!.IsActive);
             if (activeResult.IsFailure)
-                return Result<DeletedRestaurantResponse>.Failure(activeResult.Error.Code);
+                return Result<DeletedRestaurantResponse>.Failure(activeResult.Errors);
 
 
             _restaurantRepository.Delete(restaurant);
