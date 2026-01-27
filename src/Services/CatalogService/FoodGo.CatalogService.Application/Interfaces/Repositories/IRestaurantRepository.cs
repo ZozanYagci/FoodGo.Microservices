@@ -12,6 +12,8 @@ namespace FoodGo.CatalogService.Application.Interfaces.Repositories
         IQueryable<Restaurant> Query(bool tracking = false);
         Task<Restaurant?> GetByIdAsync(Guid Id);
         Task<List<Restaurant>> GetAllAsync();
+
+        Task<bool> AnyByNameAsync(string name);
         void Add(Restaurant restaurant);
         void Update(Restaurant restaurant);
         void Delete(Restaurant restaurant);

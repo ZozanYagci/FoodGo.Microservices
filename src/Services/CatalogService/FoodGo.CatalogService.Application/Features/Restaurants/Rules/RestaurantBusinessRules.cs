@@ -26,10 +26,10 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Rules
 
             return Result.Success();
         }
-
+ 
         public async Task<Result> RestaurantNameMustBeUnique(string name)
         {
-            var exists = await _restaurantRepository.Query().AnyAsync(r => r.Name == name);
+            var exists = await _restaurantRepository.AnyByNameAsync(name);
 
             if (exists)
                 return Result.Failure(RestaurantErrors.NameAlreadyExists);

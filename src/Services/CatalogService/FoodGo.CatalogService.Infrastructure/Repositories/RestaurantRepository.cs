@@ -24,6 +24,13 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
             _context.Restaurants.Add(restaurant);
         }
 
+        public async Task<bool> AnyByNameAsync(string name)
+        {
+            return await _context.Restaurants
+                .AsNoTracking()
+                .AnyAsync(r => r.Name == name);
+        }
+
         public void Delete(Restaurant restaurant)
         {
             _context.Restaurants.Remove(restaurant);
