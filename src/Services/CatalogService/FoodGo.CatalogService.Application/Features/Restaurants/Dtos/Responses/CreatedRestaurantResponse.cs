@@ -9,6 +9,6 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses
     public class CreatedRestaurantResponse
     {
         public Guid Id { get; set; }
-        public string Message { get; set; } = default!;
+        public string Name { get; set; } = default!;
     }
 }

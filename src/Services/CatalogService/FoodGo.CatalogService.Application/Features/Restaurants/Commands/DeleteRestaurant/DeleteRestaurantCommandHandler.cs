@@ -1,8 +1,7 @@
-﻿using AutoMapper;
+﻿using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
-using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
+using FoodGo.CatalogService.Application.Interfaces;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
 using System;
@@ -15,37 +14,36 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
 {
     public class DeleteRestaurantCommandHandler : IRequestHandler<DeleteRestaurantCommand, Result<DeletedRestaurantResponse>>
     {
-        private readonly IRestaurantRepository _restaurantRepository;
-        private readonly RestaurantBusinessRules _businessRules;
+        private readonly IRestaurantRepository _repository;
+        private readonly IUnitOfWork _unitOfWork; 
 
-        public DeleteRestaurantCommandHandler(IRestaurantRepository restaurantRepository, RestaurantBusinessRules businessRules)
+        public DeleteRestaurantCommandHandler(IRestaurantRepository repository, IUnitOfWork unitOfWork)
         {
-            _restaurantRepository = restaurantRepository;
-            _businessRules = businessRules;
+            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<DeletedRestaurantResponse>> Handle(DeleteRestaurantCommand command, CancellationToken cancellationToken)
         {
-            var restaurant = await _restaurantRepository.GetByIdAsync(command.Request.Id);
+            var restaurant = await _repository.GetByIdAsync(command.Id, tracking: true);
 
-            var existResult = _businessRules.RestaurantMustExist(restaurant);
-            if (existResult.IsFailure)
-                return Result<DeletedRestaurantResponse>.Failure(existResult.Errors);
+            if(restaurant is null)
+                return Result<DeletedRestaurantResponse>.Failure(
+                    RestaurantErrors.NotFound(command.Id));
 
-            var activeResult = _businessRules.RestaurantMustBeActive(restaurant!.IsActive);
-            if (activeResult.IsFailure)
-                return Result<DeletedRestaurantResponse>.Failure(activeResult.Errors);
+            if (!restaurant.IsActive)
+                return Result<DeletedRestaurantResponse>.Failure(
+                    RestaurantErrors.RestaurantInactive);
 
+            _repository.Delete(restaurant);
 
-            _restaurantRepository.Delete(restaurant);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var response = new DeletedRestaurantResponse
-            {
-                Id = restaurant.Id,
-                Message = RestaurantMessages.RestaurantDeleted
-            };
-
-            return Result<DeletedRestaurantResponse>.Success(response);
+            return Result<DeletedRestaurantResponse>.Success(
+                new DeletedRestaurantResponse
+                {
+                    Id = restaurant.Id,
+                });
         }
     }
 }

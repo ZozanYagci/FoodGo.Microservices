@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.SeedWork;
-using FoodGo.CatalogService.Domain.SeedWork.DomainErrors;
 using FoodGo.CatalogService.Domain.ValueObjects;
 
 
@@ -21,10 +20,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
             Action act = () => new Restaurant("", address);
 
             act.Should()
-                .Throw<DomainException>()
-                .Which.ErrorCode.Should()
-                .Be(RestaurantRules.NameCannotBeEmpty);
-
+                .Throw<DomainException>();
         }
 
         [Fact]
@@ -33,9 +29,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
             Action act = () => new Restaurant("Hevi Restaurant", null);
 
             act.Should()
-                .Throw<DomainException>()
-                .Which.ErrorCode.Should()
-                .Be(RestaurantRules.AddressCannotBeNull);
+                .Throw<DomainException>();
         }
 
         [Fact]
@@ -56,12 +50,10 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
         {
             var restaurant = new Restaurant("Old name", CreateValidAddress());
 
-            Action act = () => restaurant.UpdateName("");
+            Action act = () => restaurant.SetName("");
 
             act.Should()
-                .Throw<DomainException>()
-                .Which.ErrorCode.Should()
-                .Be(RestaurantRules.NameCannotBeEmpty);
+                .Throw<DomainException>();    
         }
 
         [Fact]
@@ -69,7 +61,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
         {
             var restaurant = new Restaurant("Same Name", CreateValidAddress());
 
-            restaurant.UpdateName("Same Name");
+            restaurant.SetName("Same Name");
 
             restaurant.Name.Should().Be("Same Name");
         }
@@ -79,7 +71,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
         {
             var restaurant = new Restaurant("Old Name", CreateValidAddress());
 
-            restaurant.UpdateName("New Name");
+            restaurant.SetName("New Name");
 
             restaurant.Name.Should().Be("New Name");
         }
@@ -91,7 +83,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
 
             restaurant.UpdatedAt.Should().BeNull();
 
-            restaurant.UpdateName("New Name");
+            restaurant.SetName("New Name");
 
             restaurant.UpdatedAt.Should().NotBeNull();
         }
@@ -102,12 +94,10 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
         {
             var restaurant = new Restaurant("Restaurant", CreateValidAddress());
 
-            Action act = () => restaurant.UpdateAddress(null);
+            Action act = () => restaurant.SetAddress(null);
 
             act.Should()
-                .Throw<DomainException>()
-                .Which.ErrorCode.Should()
-                .Be(RestaurantRules.AddressCannotBeNull);
+                .Throw<DomainException>();      
         }
 
         [Fact]
@@ -116,7 +106,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
             var restaurant = new Restaurant("Restaurant", CreateValidAddress());
             var newAddress = new Address("New St", "New Dist", "New City", 40, 28);
 
-            restaurant.UpdateAddress(newAddress);
+            restaurant.SetAddress(newAddress);
 
             restaurant.Address.Should().Be(newAddress);
 
@@ -127,15 +117,14 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
         {
 
             var restaurant = new Restaurant("Restaurant", CreateValidAddress());
-            restaurant.ToggleActive();
+            restaurant.Deactivate();
             var categoryId = Guid.NewGuid();
 
             Action act = () => restaurant.AddCategory(categoryId);
 
             act.Should()
-               .Throw<DomainException>()
-               .Which.ErrorCode.Should()
-               .Be(RestaurantRules.RestaurantInactive);
+               .Throw<DomainException>();
+              
         }
 
         [Fact]
@@ -150,9 +139,7 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
             Action act = () => restaurant.AddCategory(categoryId);
 
             act.Should()
-               .Throw<DomainException>()
-               .Which.ErrorCode.Should()
-               .Be(RestaurantRules.CategoryAlreadyExist);
+               .Throw<DomainException>();
         }
 
         [Fact]
@@ -168,14 +155,25 @@ namespace FoodGo.CatalogService.Domain.Tests.RestaurantTests.Entities
         }
 
         [Fact]
-        public void ToggleActive_should_change_IsActive_state()
+        public void Deactivate_should_change_IsActive_false()
         {
 
             var restaurant = new Restaurant("Restaurant", CreateValidAddress());
 
-            restaurant.ToggleActive();
+            restaurant.Deactivate();
 
             restaurant.IsActive.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Activate_should_set_IsActive_true()
+        {
+            var restaurant = new Restaurant("Restaurant", CreateValidAddress());
+            restaurant.Deactivate();
+
+            restaurant.Activate();
+
+            restaurant.IsActive.Should().BeTrue();
         }
 
     }

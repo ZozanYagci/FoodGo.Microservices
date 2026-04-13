@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
-using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
+using FoodGo.CatalogService.Application.Interfaces;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.ValueObjects;
@@ -17,35 +17,39 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Create
 {
     public class CreateRestaurantCommandHandler : IRequestHandler<CreateRestaurantCommand, Result<CreatedRestaurantResponse>>
     {
-        private readonly IRestaurantRepository _restaurantRepository;
-        private readonly IMapper _mapper;
-        private readonly RestaurantBusinessRules _businessRules;
+        private readonly IRestaurantRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateRestaurantCommandHandler(IRestaurantRepository restaurantRepository, IMapper mapper, RestaurantBusinessRules businessRules)
+        public CreateRestaurantCommandHandler(IRestaurantRepository repository, IUnitOfWork unitOfWork)
         {
-            _restaurantRepository = restaurantRepository;
-            _mapper = mapper;
-            _businessRules = businessRules;
+            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<CreatedRestaurantResponse>> Handle(CreateRestaurantCommand command, CancellationToken cancellationToken)
         {
-            var uniqueNameResult =
-                await _businessRules.RestaurantNameMustBeUnique(command.Request.Name);
+            if (await _repository.AnyByNameAsync(command.Name))
+                return Result<CreatedRestaurantResponse>.Failure(
+                    RestaurantErrors.NameAlreadyExists(command.Name));
 
-            if (uniqueNameResult.IsFailure)
-                return Result<CreatedRestaurantResponse>
-                    .Failure(uniqueNameResult.Errors);
+            var address = new Address(
+                command.Address.Street,
+                command.Address.District,
+                command.Address.City,
+                command.Address.Latitude,
+                command.Address.Longitude
+                );
 
-            var restaurant = new Restaurant(
-                command.Request.Name,
-                _mapper.Map<Address>(command.Request.Address));
+            var restaurant = new Restaurant(command.Name, address);
 
-            _restaurantRepository.Add(restaurant);
+            _repository.Add(restaurant);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var response = _mapper.Map<CreatedRestaurantResponse>(restaurant);
-            response.Message = RestaurantMessages.RestaurantCreated;
-
+            var response = new CreatedRestaurantResponse
+            {
+                Id = restaurant.Id,
+                Name = restaurant.Name
+            };
             return Result<CreatedRestaurantResponse>.Success(response);
         }
     }

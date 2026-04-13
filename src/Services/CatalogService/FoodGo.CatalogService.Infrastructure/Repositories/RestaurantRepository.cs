@@ -36,26 +36,15 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
             _context.Restaurants.Remove(restaurant);
         }
 
-        public async Task<List<Restaurant>> GetAllAsync()
-        {
-            return await _context.Restaurants.AsNoTracking().ToListAsync();
-        }
-
-        public async Task<Restaurant?> GetByIdAsync(Guid Id)
-        {
-            return await _context.Restaurants.AsNoTracking().FirstOrDefaultAsync(r => r.Id == Id);
-        }
-
-        public IQueryable<Restaurant> Query(bool tracking = false)
+        public async Task<Restaurant?> GetByIdAsync(Guid Id, bool tracking = true)
         {
             var query = _context.Restaurants.AsQueryable();
-            return tracking ? query : query.AsNoTracking();
-        }
 
-        public void Update(Restaurant restaurant)
-        {
-            _context.Restaurants.Update(restaurant);
+            if (!tracking)
+                query = query.AsNoTracking();
 
+            return await query.FirstOrDefaultAsync(r => r.Id == Id);
         }
+      
     }
 }

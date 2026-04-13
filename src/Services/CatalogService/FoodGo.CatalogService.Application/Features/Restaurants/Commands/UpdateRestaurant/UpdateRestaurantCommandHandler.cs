@@ -1,75 +1,68 @@
-﻿using AutoMapper;
+﻿using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
-using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
+using FoodGo.CatalogService.Application.Interfaces;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.ValueObjects;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.UpdateRestaurant
 {
     public class UpdateRestaurantCommandHandler : IRequestHandler<UpdateRestaurantCommand, Result<UpdatedRestaurantResponse>>
     {
-        private readonly IRestaurantRepository _restaurantRepository;
-        private readonly IMapper _mapper;
-        private readonly RestaurantBusinessRules _businessRules;
+        private readonly IRestaurantRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateRestaurantCommandHandler(IRestaurantRepository restaurantRepository, IMapper mapper, RestaurantBusinessRules businessRules)
+        public UpdateRestaurantCommandHandler(IRestaurantRepository repository, IUnitOfWork unitOfWork)
         {
-            _restaurantRepository = restaurantRepository;
-            _mapper = mapper;
-            _businessRules = businessRules;
+            _repository = repository;
+            _unitOfWork = unitOfWork;
+
         }
 
         public async Task<Result<UpdatedRestaurantResponse>> Handle(UpdateRestaurantCommand command, CancellationToken cancellationToken)
         {
+            var restaurant = await _repository.GetByIdAsync(command.Id, tracking: true);
 
-            var request = command.Request;
-            var restaurant = await _restaurantRepository.GetByIdAsync(request.Id);
+            if (restaurant is null)
+                return Result<UpdatedRestaurantResponse>.Failure(
+                    RestaurantErrors.NotFound(command.Id));
 
-            var existResult = _businessRules.RestaurantMustExist(restaurant);
+            if (!restaurant.IsActive)
+                return Result<UpdatedRestaurantResponse>.Failure(
+                    RestaurantErrors.RestaurantInactive);
 
-            if (existResult.IsFailure)
-                return Result<UpdatedRestaurantResponse>.Failure(existResult.Errors);
-
-            var activeResult = _businessRules.RestaurantMustBeActive(restaurant!.IsActive);
-
-            if (activeResult.IsFailure)
-                return Result<UpdatedRestaurantResponse>.Failure(activeResult.Errors);
-
-
-            if (restaurant.Name != request.Name)
+            if (!string.IsNullOrWhiteSpace(command.Name) &&
+                restaurant.Name != command.Name)
             {
-                var uniqueResult = await _businessRules.RestaurantNameMustBeUnique(request.Name);
+                if (await _repository.AnyByNameAsync(command.Name))
+                    return Result<UpdatedRestaurantResponse>.Failure(
+                        RestaurantErrors.NameAlreadyExists(command.Name));
 
-                if (uniqueResult.IsFailure)
-                    return Result<UpdatedRestaurantResponse>.Failure(uniqueResult.Errors);
-
-                restaurant.UpdateName(request.Name);
+                restaurant.SetName(command.Name);
             }
 
-            if (request.Address is not null)
+            if (command.Address is not null)
             {
-                var newAddress = _mapper.Map<Address>(request.Address);
-                restaurant.UpdateAddress(newAddress);
+                var address = new Address(
+                    command.Address.Street,
+                    command.Address.District,
+                    command.Address.City,
+                    command.Address.Latitude,
+                    command.Address.Longitude);
+
+                restaurant.SetAddress(address);
             }
 
-            _restaurantRepository.Update(restaurant);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-
-            var response = new UpdatedRestaurantResponse
+            return Result<UpdatedRestaurantResponse>.Success(
+            new UpdatedRestaurantResponse
             {
-                Id = restaurant.Id,
-                Message = RestaurantMessages.RestaurantUpdated
-            };
-
-            return Result<UpdatedRestaurantResponse>.Success(response);
+                Id = command.Id,
+                Name=restaurant.Name
+            });
 
         }
     }

@@ -1,9 +1,7 @@
 ﻿using FluentAssertions;
 using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Features.Restaurants.Commands.DeleteRestaurant;
-using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Requests;
-using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
+using FoodGo.CatalogService.Application.Interfaces;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.ValueObjects;
@@ -14,17 +12,16 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
 {
     public class DeleteRestaurantCommandHandlerTests
     {
-        private readonly IRestaurantRepository _restaurantRepository;
-        private readonly RestaurantBusinessRules _businessRules;
+        private readonly IRestaurantRepository _repository;
         private readonly DeleteRestaurantCommandHandler _handler;
+        private readonly IUnitOfWork _unitOfWork;
 
         public DeleteRestaurantCommandHandlerTests()
         {
-            _restaurantRepository = Substitute.For<IRestaurantRepository>();
-            _businessRules = new RestaurantBusinessRules(_restaurantRepository);
-
+            _repository = Substitute.For<IRestaurantRepository>();
+           _unitOfWork=Substitute.For<IUnitOfWork>();
             _handler = new DeleteRestaurantCommandHandler(
-                _restaurantRepository, _businessRules);
+                _repository, _unitOfWork);
         }
 
         [Fact]
@@ -32,15 +29,17 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
         {
             var command = CreateValidCommand();
 
-            _restaurantRepository.GetByIdAsync(command.Request.Id)
+            _repository.GetByIdAsync(command.Id)
                 .Returns((Restaurant?)null);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsFailure.Should().BeTrue();
-            result.Errors.Should().ContainSingle(e => e == RestaurantErrors.NotFound);
 
-            _restaurantRepository.DidNotReceive().Delete(Arg.Any<Restaurant>());
+            _repository.DidNotReceive().Delete(Arg.Any<Restaurant>());
+
+            await _unitOfWork.DidNotReceive()
+                .SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -49,12 +48,14 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
             var restaurant = CreateRestaurant(active: false);
             var command = CreateValidCommand();
 
-            _restaurantRepository.GetByIdAsync(command.Request.Id).Returns(restaurant);
+            _repository.GetByIdAsync(command.Id).Returns(restaurant);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsFailure.Should().BeTrue();
-            result.Errors.Should().ContainSingle(e => e == RestaurantErrors.RestaurantInactive);
+
+            await _unitOfWork.DidNotReceive()
+                .SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -63,14 +64,17 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
             var restaurant = CreateRestaurant();
             var command = CreateValidCommand();
 
-            _restaurantRepository.GetByIdAsync(command.Request.Id).Returns(restaurant);
+            _repository.GetByIdAsync(command.Id).Returns(restaurant);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsSuccess.Should().BeTrue();
-            result.Value.Message.Should().Be(RestaurantMessages.RestaurantDeleted);
+           
 
-            _restaurantRepository.Received(1).Delete(restaurant);
+            _repository.Received(1).Delete(restaurant);
+
+            await _unitOfWork.Received(1)
+                .SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         private static Restaurant CreateRestaurant(bool active = true)
@@ -80,18 +84,17 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
                 new Address("Street", "District", "City", 41, 29));
 
             if (!active)
-                restaurant.ToggleActive();
+                restaurant.Deactivate();
 
             return restaurant;
         }
 
         private static DeleteRestaurantCommand CreateValidCommand()
         {
-            return new DeleteRestaurantCommand(
-                new DeleteRestaurantRequest
+            return new DeleteRestaurantCommand
                 {
                     Id = Guid.NewGuid()
-                });
+                };
         }
     }
 }

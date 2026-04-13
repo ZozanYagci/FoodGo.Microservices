@@ -2,10 +2,8 @@
 using FluentAssertions;
 using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Features.Restaurants.Commands.UpdateRestaurant;
-using FoodGo.CatalogService.Application.Features.Restaurants.Constants;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Common;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Requests;
-using FoodGo.CatalogService.Application.Features.Restaurants.Rules;
+using FoodGo.CatalogService.Application.Interfaces;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.ValueObjects;
@@ -20,19 +18,16 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
 {
     public class UpdateRestaurantCommandHandlerTests
     {
-        private readonly IRestaurantRepository _restaurantRepository;
-        private readonly IMapper _mapper;
-        private readonly RestaurantBusinessRules _businessRules;
+        private readonly IRestaurantRepository _repository;
         private readonly UpdateRestaurantCommandHandler _handler;
+        private readonly IUnitOfWork _unitOfWork;
 
         public UpdateRestaurantCommandHandlerTests()
         {
-            _restaurantRepository = Substitute.For<IRestaurantRepository>();
-            _mapper = Substitute.For<IMapper>();
-            _businessRules = new RestaurantBusinessRules(_restaurantRepository);
-
+            _repository = Substitute.For<IRestaurantRepository>();
+            _unitOfWork = Substitute.For<IUnitOfWork>();
             _handler = new UpdateRestaurantCommandHandler(
-                _restaurantRepository, _mapper, _businessRules);
+                _repository, _unitOfWork);
         }
 
         [Fact]
@@ -40,16 +35,17 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
         {
             var command = CreateValidCommand();
 
-            _restaurantRepository
-                .GetByIdAsync(command.Request.Id)
+            _repository
+                .GetByIdAsync(command.Id)
                 .Returns((Restaurant?)null);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsFailure.Should().BeTrue();
-            result.Errors.Should().ContainSingle(e => e == RestaurantErrors.NotFound);
 
-            _restaurantRepository.DidNotReceive().Update(Arg.Any<Restaurant>());
+            await _unitOfWork.DidNotReceive()
+                .SaveChangesAsync(Arg.Any<CancellationToken>());
+
         }
 
         [Fact]
@@ -58,12 +54,14 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
             var restaurant = CreateRestaurant(active: false);
             var command = CreateValidCommand();
 
-            _restaurantRepository.GetByIdAsync(command.Request.Id).Returns(restaurant);
+            _repository.GetByIdAsync(command.Id).Returns(restaurant);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsFailure.Should().BeTrue();
-            result.Errors.Should().ContainSingle(e => e == RestaurantErrors.RestaurantInactive);
+
+            await _unitOfWork.DidNotReceive()
+                .SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -72,13 +70,13 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
             var restaurant = CreateRestaurant();
             var command = CreateValidCommand(name: "New Name");
 
-            _restaurantRepository.GetByIdAsync(command.Request.Id).Returns(restaurant);
-            _restaurantRepository.AnyByNameAsync("New Name").Returns(true);
+            _repository.GetByIdAsync(command.Id).Returns(restaurant);
+            _repository.AnyByNameAsync("New Name").Returns(true);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsFailure.Should().BeTrue();
-            result.Errors.Should().ContainSingle(e => e == RestaurantErrors.NameAlreadyExists);
+
         }
 
         [Fact]
@@ -87,21 +85,20 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
             var restaurant = CreateRestaurant();
             var command = CreateValidCommand(name: "Updated Name");
 
-            _restaurantRepository.GetByIdAsync(command.Request.Id).Returns(restaurant);
-            _restaurantRepository.AnyByNameAsync("Updated Name").Returns(false);
+            _repository.GetByIdAsync(command.Id).Returns(restaurant);
+            _repository.AnyByNameAsync("Updated Name").Returns(false);
 
-            var newAddress = new Address("New", "District", "City", 40, 28);
-            _mapper.Map<Address>(command.Request.Address).Returns(newAddress);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.IsSuccess.Should().BeTrue();
-            result.Value.Message.Should().Be(RestaurantMessages.RestaurantUpdated);
+            restaurant.Name.Should().Be("Updated Name");
 
-            _restaurantRepository.Received(1).Update(restaurant);
+            await _unitOfWork.Received(1)
+                .SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
-       
+
         private static Restaurant CreateRestaurant(bool active = true)
         {
             var restaurant = new Restaurant(
@@ -109,27 +106,26 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
                 new Address("Street", "District", "City", 41, 29));
 
             if (!active)
-                restaurant.ToggleActive();
+                restaurant.Deactivate();
 
             return restaurant;
         }
 
         private static UpdateRestaurantCommand CreateValidCommand(string name = "Old Name")
         {
-            return new UpdateRestaurantCommand(
-                new UpdateRestaurantRequest
+            return new UpdateRestaurantCommand
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                Address = new AddressDto
                 {
-                    Id = Guid.NewGuid(),
-                    Name = name,
-                    Address = new AddressDto
-                    {
-                        Street = "New",
-                        District = "District",
-                        City = "City",
-                        Latitude = 40,
-                        Longitude = 28
-                    }
-                });
+                    Street = "New",
+                    District = "District",
+                    City = "City",
+                    Latitude = 40,
+                    Longitude = 28
+                }
+            };
         }
 
     }

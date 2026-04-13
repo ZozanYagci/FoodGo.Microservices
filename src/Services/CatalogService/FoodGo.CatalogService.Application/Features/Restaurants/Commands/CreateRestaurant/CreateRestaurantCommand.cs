@@ -1,5 +1,5 @@
 ﻿using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Requests;
+using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Common;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using MediatR;
 using System;
@@ -12,11 +12,7 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Create
 {
     public class CreateRestaurantCommand : IRequest<Result<CreatedRestaurantResponse>>
     {
-        public CreateRestaurantRequest Request { get; set; } = null!;
-
-        public CreateRestaurantCommand(CreateRestaurantRequest request)
-        {
-            Request = request;
-        }
+        public string Name { get; init; } = default!;
+        public AddressDto Address { get; init; } = default!;
     }
 }

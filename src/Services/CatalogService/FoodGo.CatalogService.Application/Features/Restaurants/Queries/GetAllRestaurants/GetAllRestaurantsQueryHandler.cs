@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Common.Results;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
@@ -10,22 +11,26 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetAllRestaurants
 {
-    public class GetAllRestaurantsQueryHandler : IRequestHandler<GetAllRestaurantsQuery, List<GetRestaurantListItemResponse>>
-    {
-        private readonly IRestaurantRepository _restaurantRepository;
-        private readonly IMapper _mapper;
+    //public class GetAllRestaurantsQueryHandler : IRequestHandler<GetAllRestaurantsQuery, Result<List<GetRestaurantListItemResponse>>>
+    //{
+    //    private readonly IRestaurantRepository _repository;
+    //    private readonly IMapper _mapper;
 
-        public GetAllRestaurantsQueryHandler(IRestaurantRepository restaurantRepository, IMapper mapper)
-        {
-            _restaurantRepository = restaurantRepository;
-            _mapper = mapper;
-        }
+    //    public GetAllRestaurantsQueryHandler(IRestaurantRepository repository, IMapper mapper)
+    //    {
+    //        _repository = repository;
+    //        _mapper = mapper;
+    //    }
 
-        public async Task<List<GetRestaurantListItemResponse>> Handle(GetAllRestaurantsQuery query, CancellationToken cancellationToken)
-        {
-            var restaurants = await _restaurantRepository.GetAllAsync();
+    //    public async Task<Result<List<GetRestaurantListItemResponse>>> Handle(GetAllRestaurantsQuery query, CancellationToken cancellationToken)
+    //    {
+    //        var restaurants = await _repository.GetAllAsync();
 
-            return _mapper.Map<List<GetRestaurantListItemResponse>>(restaurants);
-        }
-    }
+    //        var response= _mapper.Map<List<GetRestaurantListItemResponse>>(restaurants);
+
+    //        return Result<List<GetRestaurantListItemResponse>>.Success(response);
+    //    }
+    //}
+
+
 }

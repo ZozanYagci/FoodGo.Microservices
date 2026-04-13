@@ -1,5 +1,4 @@
 ﻿using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Requests;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using MediatR;
 using System;
@@ -12,11 +11,6 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Commands.Delete
 {
     public class DeleteRestaurantCommand : IRequest<Result<DeletedRestaurantResponse>>
     {
-        public DeleteRestaurantRequest Request { get; set; } = default!;
-
-        public DeleteRestaurantCommand(DeleteRestaurantRequest request)
-        {
-            Request = request;
-        }
+        public Guid Id { get; set; }
     }
 }

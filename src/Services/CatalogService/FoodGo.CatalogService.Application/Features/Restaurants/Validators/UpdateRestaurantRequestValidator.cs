@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Requests;
+using FoodGo.CatalogService.Application.Features.Restaurants.Commands.UpdateRestaurant;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Application.Features.Restaurants.Validators
 {
-    public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaurantRequest>
+    public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaurantCommand>
     {
         public UpdateRestaurantRequestValidator()
         {

@@ -1,9 +1,9 @@
 ﻿using FoodGo.CatalogService.Domain.SeedWork;
-using FoodGo.CatalogService.Domain.SeedWork.DomainErrors;
 using FoodGo.CatalogService.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,48 +19,77 @@ namespace FoodGo.CatalogService.Domain.Entities
         private readonly List<Guid> _categoryIds = new();
         public IReadOnlyCollection<Guid> CategoryIds => _categoryIds.AsReadOnly();
 
+        private const int MaxCategoryLimit = 10;
+
         private Restaurant()
         {
 
         }
 
-        public Restaurant(string name, Address address = null)
+        public Restaurant(string name, Address address)
+        {
+            SetName(name);
+            SetAddress(address);
+            IsActive = true;
+            TouchCreated();
+
+        }
+
+        public void SetName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new DomainException(RestaurantRules.NameCannotBeEmpty);
+                throw new DomainException("Restaurant.Name.Empty");
 
             Name = name;
-            Address = address ?? throw new DomainException(RestaurantRules.AddressCannotBeNull);
-        }
-
-        public void UpdateName(string newName)
-        {
-            if (string.IsNullOrWhiteSpace(newName)) throw new DomainException(SeedWork.DomainErrors.RestaurantRules.NameCannotBeEmpty);
-
-            if (Name == newName)
-                return;
-
-            Name = newName;
             TouchUpdated();
         }
 
-        public void UpdateAddress(Address newAddress)
+        public void SetAddress(Address address)
         {
-            Address = newAddress ?? throw new DomainException(RestaurantRules.AddressCannotBeNull);
+            Address = address ?? throw new DomainException("Restaurant.Address.Null");
             TouchUpdated();
+
         }
+
 
         public void AddCategory(Guid categoryId)
         {
             if (!IsActive)
-                throw new DomainException(RestaurantRules.RestaurantInactive);
+                throw new DomainException("Restaurant.Inactive");
 
             if (_categoryIds.Contains(categoryId))
-                throw new DomainException(RestaurantRules.CategoryAlreadyExist);
+                throw new DomainException("Restaurant.Category.Duplicate");
+
+            if (_categoryIds.Count >= MaxCategoryLimit)
+                throw new DomainException("Restaurant.Category.LimitExceeded");
 
             _categoryIds.Add(categoryId);
+            TouchUpdated();
+
         }
 
-        public void ToggleActive() => IsActive = !IsActive;
+        public void RemoveCategory(Guid categoryId)
+        {
+            if (!_categoryIds.Contains(categoryId)) return;
+
+            _categoryIds.Remove(categoryId);
+            TouchUpdated();
+        }
+
+        public void Activate()
+        {
+            if (IsActive) return;
+
+            IsActive = true;
+            TouchUpdated();
+        }
+
+        public void Deactivate()
+        {
+            if (!IsActive) return;
+
+            IsActive = false;
+            TouchUpdated();
+        }
     }
 }

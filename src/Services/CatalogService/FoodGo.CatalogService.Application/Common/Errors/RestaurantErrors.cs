@@ -1,5 +1,5 @@
 ﻿using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Domain.SeedWork.DomainErrors;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,39 +11,29 @@ namespace FoodGo.CatalogService.Application.Common.Errors
     public static class RestaurantErrors
     {
         public static Error NameCannotBeEmpty =>
-            Error.Business(
-                RestaurantRules.NameCannotBeEmpty,
+            Error.Validation(
+                "Restaurant.Name.Empty",
                 "Restaurant name cannot be empty.");
 
         public static Error AddressCannotBeNull =>
-            Error.Business(
-                RestaurantRules.AddressCannotBeNull,
+            Error.Validation(
+                 "Restaurant.Address.Null",
                 "Restaurant address cannot be null.");
 
-        public static Error CategoryAlreadyExist =>
-            Error.Business(
-                RestaurantRules.CategoryAlreadyExist,
-                "This category already exists.");
-
-        public static Error CategoryLimitExceeded =>
-            Error.Business(
-                RestaurantRules.CategoryLimitExceeded,
-                "Category limit has been exceeded.");
-
         public static Error RestaurantInactive =>
-            Error.Business(
-                RestaurantRules.RestaurantInactive,
-                "Restaurant is not active.");
+             Error.Business(
+                "Restaurant.Inactive",
+                 "Restaurant is not active.");
 
-        public static Error NotFound =>
-            Error.Business(
+        public static Error NotFound(Guid id) =>
+            Error.NotFound(
                 "Restaurant.NotFound",
-                "Restaurant not found.");
+                $"Restaurant with id '{id}' not found.");
 
-        public static Error NameAlreadyExists =>
+        public static Error NameAlreadyExists(string name) =>
             Error.Business(
-                "Restaurant.Name.AlreadyExists",
-                "Name already exists");
+               "Restaurant.Name.Exists",
+                $"Restaurant name '{name}' already exists.");
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
+﻿using FoodGo.CatalogService.Application.Common.Results;
+using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetAllRestaurants
 {
-    public class GetAllRestaurantsQuery : IRequest<List<GetRestaurantListItemResponse>>
+    public class GetAllRestaurantsQuery : IRequest<Result<List<GetRestaurantListItemResponse>>>
     {
     }
 }
