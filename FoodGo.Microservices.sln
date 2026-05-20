@@ -95,6 +95,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodGo.CatalogService.Domai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodGo.CatalogService.Application.Tests", "tests\FoodGo.CatalogService.Application.Tests\FoodGo.CatalogService.Application.Tests.csproj", "{C45A092C-3AB0-4E4D-9761-74442C6F40A0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{4DCF5258-F55D-4E7D-98BE-09D512755D08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{34206351-0C11-4BD4-83EB-E64B8923FB1C}"
+	ProjectSection(SolutionItems) = preProject
+		catalog-ci.yml = catalog-ci.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,6 +288,7 @@ Global
 		{21B2E7FB-0276-46BC-AB7B-CB5D36584D4F} = {7C49DE23-691B-4DDD-BC08-C6759ED04680}
 		{9521A632-372D-402C-AAAA-52E75EAF0DCF} = {55DF73DD-4338-4EF2-AC49-FE8E5033D4E6}
 		{C45A092C-3AB0-4E4D-9761-74442C6F40A0} = {55DF73DD-4338-4EF2-AC49-FE8E5033D4E6}
+		{34206351-0C11-4BD4-83EB-E64B8923FB1C} = {4DCF5258-F55D-4E7D-98BE-09D512755D08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {19561205-D16E-41A9-A30A-B9A38CBE75DD}
