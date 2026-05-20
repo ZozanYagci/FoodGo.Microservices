@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-// denemee - CI pipeline test 
+// deneme - CI pipeline test 
 
 namespace FoodGo.CatalogService.Api.Controllers
 {
