@@ -1,5 +1,4 @@
 ﻿using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using MediatR;
 using System;
 using System.Collections.Generic;

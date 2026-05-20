@@ -31,6 +31,11 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
                 .AnyAsync(r => r.Name == name);
         }
 
+        public async Task<int> CountAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Restaurants.CountAsync(cancellationToken);
+        }
+
         public void Delete(Restaurant restaurant)
         {
             _context.Restaurants.Remove(restaurant);
@@ -45,6 +50,15 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
 
             return await query.FirstOrDefaultAsync(r => r.Id == Id);
         }
-      
+
+        public async Task<List<Restaurant>> GetPagedAsync(int skip, int take, CancellationToken cancellationToken)
+        {
+            return await _context.Restaurants
+                .OrderBy(r => r.Name)
+                .Skip(skip)
+                .Take(take)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+        }
     }
 }

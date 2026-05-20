@@ -32,11 +32,20 @@ namespace FoodGo.CatalogService.Api.Middlewares
                     g => g.Key,
                     g => g.Select(e => e.ErrorMessage).ToArray());
 
-                var problemsDetails = new ValidationProblemDetails(errors);
+                var problemsDetails = new ValidationErrorProblemDetails(errors);
 
                 await WriteProblemDetailsAsync(context, problemsDetails);
             }
-            
+
+            catch (DomainException ex)
+            {
+                _logger.LogWarning(ex, "Domain exception occured. ErrorCode: {ErrorCode}", ex.ErrorCode);
+
+                var problemDetails = new BusinessProblemDetails(ex.ErrorCode, "A business rule violation occurred.");
+
+                await WriteProblemDetailsAsync(context, problemDetails);
+            }
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred.");
@@ -49,6 +58,8 @@ namespace FoodGo.CatalogService.Api.Middlewares
 
         private static async Task WriteProblemDetailsAsync(HttpContext context, Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails)
         {
+            
+
             context.Response.StatusCode = problemDetails.Status!.Value;
             context.Response.ContentType = "application/problem+json";
 

@@ -6,8 +6,8 @@
         {
             Title = title;
             Status = status;
-            Type = $"https://httpstatues.com/{status}";
-            Instance = Guid.NewGuid().ToString();
+            Type = $"https://httpstatuses.com/{status}";
+            //Instance = Guid.NewGuid().ToString();
         }
     }
 }

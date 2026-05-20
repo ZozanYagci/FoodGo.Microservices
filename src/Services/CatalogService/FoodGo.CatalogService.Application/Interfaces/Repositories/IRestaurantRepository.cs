@@ -14,5 +14,7 @@ namespace FoodGo.CatalogService.Application.Interfaces.Repositories
         Task<bool> AnyByNameAsync(string name);
         void Add(Restaurant restaurant);
         void Delete(Restaurant restaurant);
+        Task<int> CountAsync(CancellationToken cancellationToken);
+        Task<List<Restaurant>> GetPagedAsync(int skip, int take, CancellationToken cancellationToken);
     }
 }

@@ -5,14 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses
+namespace FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRestaurants
 {
-    public class GetRestaurantDetailResponse
+    public class GetRestaurantsResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;
         public AddressDto? Address { get; set; }
-        public bool IsActive { get; set; }
-        
     }
 }

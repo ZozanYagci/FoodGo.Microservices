@@ -1,6 +1,5 @@
 ﻿using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Interfaces;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using FoodGo.CatalogService.Domain.ValueObjects;

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FoodGo.CatalogService.Application.Common.Errors;
 using FoodGo.CatalogService.Application.Common.Results;
-using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
+using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Common;
 using FoodGo.CatalogService.Application.Interfaces.Repositories;
 using MediatR;
 using System;
@@ -15,12 +15,12 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRest
     public class GetRestaurantByIdQueryHandler : IRequestHandler<GetRestaurantByIdQuery, Result<GetRestaurantDetailResponse>>
     {
         private readonly IRestaurantRepository _repository;
-        private readonly IMapper _mapper;
 
-        public GetRestaurantByIdQueryHandler(IRestaurantRepository repository, IMapper mapper)
+
+        public GetRestaurantByIdQueryHandler(IRestaurantRepository repository)
         {
             _repository = repository;
-            _mapper = mapper;
+
         }
 
         public async Task<Result<GetRestaurantDetailResponse>> Handle(GetRestaurantByIdQuery query, CancellationToken cancellationToken)
@@ -31,7 +31,21 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRest
                 return Result<GetRestaurantDetailResponse>.Failure(
                     RestaurantErrors.NotFound(query.Id));
 
-            var response = _mapper.Map<GetRestaurantDetailResponse>(restaurant);
+            var response = new GetRestaurantDetailResponse
+            {
+                Id = restaurant.Id,
+                Name = restaurant.Name,
+                IsActive = restaurant.IsActive,
+
+                Address = new AddressDto
+                {
+                    Street = restaurant.Address.Street,
+                    District = restaurant.Address.District,
+                    City = restaurant.Address.City,
+                    Latitude = restaurant.Address.Latitude,
+                    Longitude = restaurant.Address.Longitude
+                }
+            };
 
             return Result<GetRestaurantDetailResponse>.Success(response);
         }

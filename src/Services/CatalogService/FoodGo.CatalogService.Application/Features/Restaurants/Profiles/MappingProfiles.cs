@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using FoodGo.CatalogService.Application.Features.Restaurants.Commands.UpdateRestaurant;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Common;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
+using FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRestaurantById;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.ValueObjects;
 using System;
