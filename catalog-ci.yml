@@ -5,6 +5,7 @@ on:
     branches: [ "develop", "main" ]
     paths:
       - 'src/Services/CatalogService/**'
+
   pull_request:
     branches: [ "develop", "main" ]
     paths:
@@ -23,10 +24,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore
-        run: dotnet restore src/Services/CatalogService
+        run: dotnet restore FoodGo.Microservices.sln
 
       - name: Build
-        run: dotnet build src/Services/CatalogService --configuration Release --no-restore
+        run: dotnet build FoodGo.Microservices.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test src/Services/CatalogService --configuration Release --no-build
+        run: dotnet test FoodGo.Microservices.sln --configuration Release --no-build
