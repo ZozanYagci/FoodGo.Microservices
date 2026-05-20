@@ -7,8 +7,11 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+// deneme - CI pipeline test
+
 namespace FoodGo.CatalogService.Api.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class RestaurantController : BaseApiController
