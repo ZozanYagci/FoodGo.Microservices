@@ -28,8 +28,12 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         public Restaurant(string name, Address address)
         {
-            SetName(name);
-            SetAddress(address);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException("Restaurant.Name.Empty");
+            Name = name;
+
+            Address = address ?? throw new DomainException("Restaurant.Address.Null");
+
             IsActive = true;
             TouchCreated();
 

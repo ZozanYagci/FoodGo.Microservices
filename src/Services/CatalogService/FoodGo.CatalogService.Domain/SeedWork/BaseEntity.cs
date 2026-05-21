@@ -8,7 +8,7 @@ namespace FoodGo.CatalogService.Domain.SeedWork
 {
     public abstract class BaseEntity
     {
-        public virtual Guid Id { get; protected set; }
+        public virtual Guid Id { get; protected set; } = Guid.NewGuid();
 
         private int? _requestedHashCode;
 
