@@ -3,6 +3,7 @@ using FoodGo.CatalogService.Application.Features.Restaurants.Commands.UpdateRest
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Common;
 using FoodGo.CatalogService.Application.Features.Restaurants.Dtos.Responses;
 using FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRestaurantById;
+using FoodGo.CatalogService.Application.Features.Restaurants.Queries.GetRestaurants;
 using FoodGo.CatalogService.Domain.Entities;
 using FoodGo.CatalogService.Domain.ValueObjects;
 using System;
@@ -23,14 +24,11 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Profiles
             CreateMap<Restaurant, UpdatedRestaurantResponse>();
 
             CreateMap<Restaurant, GetRestaurantDetailResponse>();
-            CreateMap<Restaurant, GetRestaurantListItemResponse>();
+            
 
 
             CreateMap<Restaurant, GetRestaurantDetailResponse>()
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
-
-            CreateMap<Restaurant, GetRestaurantListItemResponse>()
-               .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
 
 
             CreateMap<Address, AddressDto>();
