@@ -2,11 +2,15 @@ name: Catalog Service CI
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches: 
+      - '**'
     paths:
       - 'src/Services/CatalogService/**'
+
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: 
+       - develop
+       - main
     paths:
       - 'src/Services/CatalogService/**'
 
@@ -15,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -23,10 +28,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore
-        run: dotnet restore src/Services/CatalogService
+        run: dotnet restore FoodGo.Microservices.sln
 
       - name: Build
-        run: dotnet build src/Services/CatalogService --configuration Release --no-restore
+        run: dotnet build FoodGo.Microservices.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test src/Services/CatalogService --configuration Release --no-build
+        run: dotnet test FoodGo.Microservices.sln --configuration Release --no-build --verbosity normal
