@@ -32,7 +32,7 @@ jobs:
         run: dotnet build src/Services/CatalogService/FoodGo.CatalogService.Api/FoodGo.CatalogService.Api.csproj --configuration Release --no-restore
 
       - name: Run Domain Tests
-        run: dotnet test tests/FoodGo.CatalogService.Domain.Tests/FoodGo.CatalogService.Domain.Tests.csproj --configuration Release --no-build --verbosity normal
+        run: dotnet test tests/FoodGo.CatalogService.Domain.Tests/FoodGo.CatalogService.Domain.Tests.csproj --configuration Release --verbosity normal
 
       - name: Run Application Tests
-        run: dotnet test tests/FoodGo.CatalogService.Application.Tests/FoodGo.CatalogService.Application.Tests.csproj --configuration Release --no-build --verbosity normal
+        run: dotnet test tests/FoodGo.CatalogService.Application.Tests/FoodGo.CatalogService.Application.Tests.csproj --configuration Release --verbosity normal
