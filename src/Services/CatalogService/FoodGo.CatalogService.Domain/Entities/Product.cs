@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
 
 namespace FoodGo.CatalogService.Domain.Entities
 {
@@ -36,27 +35,29 @@ namespace FoodGo.CatalogService.Domain.Entities
         public Product(string name, string description, Guid categoryId, Guid restaurantId, Money initialPrice)
         {
             SetName(name);
-            Description = description ?? string.Empty;
-            CategoryId = categoryId;
-            RestaurantId = restaurantId;
+            SetDescription(description);
+            SetCategory(categoryId);
+            SetRestaurant(restaurantId);
+
             IsActive = true;
 
-            var price = new ProductPrice(initialPrice, DateTime.UtcNow);
-            _prices.Add(price);
+            _prices.Add(new ProductPrice(initialPrice, DateTime.UtcNow));
+
 
             // Domain event: product created
             //AddDomainEvent(new ProductCreatedDomainEvent(this.Id));
-            //TouchCreated();
+            TouchCreated();
 
         }
 
         public void SetName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new DomainException("Product name cannot be empty");
+                throw new DomainException("Product.Name.Empty");
 
-            Name = name;
-            TouchUpdated();
+            Name = name.Trim();
+            if (!IsTransient())
+                TouchUpdated();
         }
 
         //public void UpdateName(string newName)
@@ -68,10 +69,36 @@ namespace FoodGo.CatalogService.Domain.Entities
         //    TouchUpdated();
         //}
 
-        public void UpdateDescription(string newDescription)
+        private void SetDescription(string description)
         {
-            Description = newDescription ?? string.Empty;
-            TouchUpdated();
+            Description = description?.Trim() ?? string.Empty;
+
+            if (Description.Length > 1000)
+                throw new DomainException("Product.Description.TooLong");
+
+            if (!IsTransient())
+                TouchUpdated();
+        }
+
+        public void UpdateDescription(string description)
+        {
+            SetDescription(description);
+        }
+
+        private void SetCategory(Guid categoryId)
+        {
+            if (categoryId == Guid.Empty)
+                throw new DomainException("Product.Category.Required");
+
+            CategoryId = categoryId;
+        }
+
+        private void SetRestaurant(Guid restaurantId)
+        {
+            if (restaurantId == Guid.Empty)
+                throw new DomainException("Product.Restaurant.Required");
+
+            RestaurantId = restaurantId;
         }
 
         public void ChangePrice(Money newPrice)
@@ -92,10 +119,10 @@ namespace FoodGo.CatalogService.Domain.Entities
         public void AddImage(string url, bool isPrimary = false)
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new DomainException("Image url cannot be empty");
+                throw new DomainException("Product.Image.Empty");
 
             if (_images.Any(x => x.Url == url))
-                throw new DomainException("Image already exists");
+                throw new DomainException("Product.Image.Duplicate");
 
             if (isPrimary)
                 foreach (var img in _images) img.UnmarkPrimary();
@@ -112,14 +139,16 @@ namespace FoodGo.CatalogService.Domain.Entities
         public void AddOption(ProductOption option)
         {
             if (_options.Any(o => o.Equals(option)))
-                throw new DomainException("Option already exists");
+                throw new DomainException("Product.Option.Duplicate");
 
             _options.Add(option);
             TouchUpdated();
         }
 
-        public void Active()
+        public void Activate()
         {
+            if (IsActive) return;
+
             IsActive = true;
             TouchUpdated();
 
@@ -127,6 +156,8 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         public void Deactivate()
         {
+            if (!IsActive) return;
+
             IsActive = false;
             TouchUpdated();
         }

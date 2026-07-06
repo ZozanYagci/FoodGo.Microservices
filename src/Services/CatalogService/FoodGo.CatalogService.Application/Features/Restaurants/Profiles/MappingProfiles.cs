@@ -23,14 +23,11 @@ namespace FoodGo.CatalogService.Application.Features.Restaurants.Profiles
             CreateMap<Restaurant, UpdatedRestaurantResponse>();
 
             CreateMap<Restaurant, GetRestaurantDetailResponse>();
-            CreateMap<Restaurant, GetRestaurantListItemResponse>();
+            
 
 
             CreateMap<Restaurant, GetRestaurantDetailResponse>()
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
-
-            CreateMap<Restaurant, GetRestaurantListItemResponse>()
-               .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
 
 
             CreateMap<Address, AddressDto>();

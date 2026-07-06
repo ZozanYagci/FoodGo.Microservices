@@ -17,6 +17,12 @@ namespace FoodGo.CatalogService.Infrastructure.EntityConfigurations
 
             builder.HasKey(p => p.Id);
 
+            builder.HasIndex(p => p.Name);
+
+            builder.HasIndex(p => p.RestaurantId);
+
+            builder.HasIndex(p => p.CategoryId);
+
             builder.Property(p => p.Name)
                 .IsRequired()
                 .HasMaxLength(200);
