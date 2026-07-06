@@ -2,7 +2,8 @@ name: Catalog Service CI
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches:
+       - '**'
     paths:
       - 'src/Services/CatalogService/**'
   pull_request:
