@@ -17,7 +17,7 @@ namespace FoodGo.CatalogService.Domain.SeedWork
         public IReadOnlyCollection<IDomainEvent>? DomainEvents => _domainEvents?.AsReadOnly();
         protected BaseEntity()
         {
-
+            Id = Guid.NewGuid();
         }
 
         #region Domain Events 

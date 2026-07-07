@@ -34,8 +34,9 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         public Product(string name, string description, Guid categoryId, Guid restaurantId, Money initialPrice)
         {
-            SetName(name);
-            SetDescription(description);
+            Name = ValidateName(name);
+            Description = ValidateDescription(description);
+
             SetCategory(categoryId);
             SetRestaurant(restaurantId);
 
@@ -46,18 +47,33 @@ namespace FoodGo.CatalogService.Domain.Entities
 
             // Domain event: product created
             //AddDomainEvent(new ProductCreatedDomainEvent(this.Id));
-            TouchCreated();
+
 
         }
 
-        public void SetName(string name)
+        private static string ValidateName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new DomainException("Product.Name.Empty");
 
-            Name = name.Trim();
-            if (!IsTransient())
-                TouchUpdated();
+            return name.Trim();
+
+        }
+        private static string ValidateDescription(string description)
+        {
+            description = description?.Trim() ?? string.Empty;
+            if (description.Length > 1000)
+                throw new DomainException("Product.Description.TooLong");
+            return description;
+        }
+
+        public void SetName(string name)
+        {
+            name = ValidateName(name);
+            if (Name == name)
+                return;
+            Name = name;
+            TouchUpdated();
         }
 
         //public void UpdateName(string newName)
@@ -71,13 +87,12 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         private void SetDescription(string description)
         {
-            Description = description?.Trim() ?? string.Empty;
+            description = ValidateDescription(description);
 
-            if (Description.Length > 1000)
-                throw new DomainException("Product.Description.TooLong");
+            if (Description == description) return;
+            Description = description;
 
-            if (!IsTransient())
-                TouchUpdated();
+            TouchUpdated();
         }
 
         public void UpdateDescription(string description)
