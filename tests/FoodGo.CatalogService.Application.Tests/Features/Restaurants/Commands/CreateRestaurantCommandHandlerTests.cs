@@ -41,7 +41,7 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Restaurants.Commands
             //Assert
             result.IsFailure.Should().BeTrue();
 
-            _repository.Received(1)
+            _repository.DidNotReceive()
                 .Add(Arg.Any<Restaurant>());
 
             await _unitOfWork.DidNotReceive()
