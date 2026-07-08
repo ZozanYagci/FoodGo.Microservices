@@ -99,7 +99,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{4DCF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{34206351-0C11-4BD4-83EB-E64B8923FB1C}"
 	ProjectSection(SolutionItems) = preProject
-		catalog-ci.yml = catalog-ci.yml
+		.github\workflows\catalog-ci.yml = .github\workflows\catalog-ci.yml
 	EndProjectSection
 EndProject
 Global

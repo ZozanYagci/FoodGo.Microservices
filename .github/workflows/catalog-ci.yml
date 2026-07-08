@@ -8,7 +8,9 @@ on:
       - 'src/Services/CatalogService/**'
       - '.github/workflows/catalog-ci.yml'
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: 
+       - develop
+       - main
     paths:
       - 'src/Services/CatalogService/**'
       - '.github/workflows/catalog-ci.yml'
@@ -18,7 +20,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
