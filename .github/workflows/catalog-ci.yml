@@ -2,17 +2,18 @@ name: Catalog Service CI
 
 on:
   push:
-    branches: 
-      - '**'
+    branches:
+       - '**'
     paths:
       - 'src/Services/CatalogService/**'
-
+      - '.github/workflows/catalog-ci.yml'
   pull_request:
     branches: 
        - develop
        - main
     paths:
       - 'src/Services/CatalogService/**'
+      - '.github/workflows/catalog-ci.yml'
 
 jobs:
   build-test:
@@ -28,10 +29,13 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore
-        run: dotnet restore FoodGo.Microservices.sln
+        run: dotnet restore src/Services/CatalogService/FoodGo.CatalogService.Api/FoodGo.CatalogService.Api.csproj
 
       - name: Build
-        run: dotnet build FoodGo.Microservices.sln --configuration Release --no-restore
+        run: dotnet build src/Services/CatalogService/FoodGo.CatalogService.Api/FoodGo.CatalogService.Api.csproj --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test FoodGo.Microservices.sln --configuration Release --no-build --verbosity normal
+      - name: Run Domain Tests
+        run: dotnet test tests/FoodGo.CatalogService.Domain.Tests/FoodGo.CatalogService.Domain.Tests.csproj --configuration Release --verbosity normal
+
+      - name: Run Application Tests
+        run: dotnet test tests/FoodGo.CatalogService.Application.Tests/FoodGo.CatalogService.Application.Tests.csproj --configuration Release --verbosity normal
