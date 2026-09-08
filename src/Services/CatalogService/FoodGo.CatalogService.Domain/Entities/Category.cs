@@ -19,15 +19,26 @@ namespace FoodGo.CatalogService.Domain.Entities
 
         public Category(string name)
         {
-            Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Kategori adı boş olamaz") : name;
+            Name = ValidateName(name);
         }
 
 
         public void Rename(string newName)
         {
-            if (string.IsNullOrWhiteSpace(newName)) throw new DomainException("Kategori adı boş olamaz.");
+            newName = ValidateName(newName);
+
+            if (Name == newName)
+                return;
             Name = newName;
             TouchUpdated();
+        }
+
+        private static string ValidateName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException("Category.Name.Empty");
+
+            return name.Trim();
         }
     }
 }

@@ -21,6 +21,9 @@ namespace FoodGo.CatalogService.Infrastructure.EntityConfigurations
                 .IsRequired()
                 .HasMaxLength(100);
 
+           // HasIndex 
+           // restoran bazlı kategori
+
         }
     }
 }

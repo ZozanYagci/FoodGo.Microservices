@@ -9,11 +9,12 @@ namespace FoodGo.CatalogService.Application.Interfaces.Repositories
 {
     public interface IRestaurantRepository
     {
-        Task<Restaurant?> GetByIdAsync(Guid Id, bool tracking=true);
+        Task<Restaurant?> GetByIdAsync(Guid Id, bool tracking = true);
 
         Task<bool> AnyByNameAsync(string name);
         void Add(Restaurant restaurant);
         void Delete(Restaurant restaurant);
+        Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
         Task<int> CountAsync(CancellationToken cancellationToken);
         Task<List<Restaurant>> GetPagedAsync(int skip, int take, CancellationToken cancellationToken);
     }

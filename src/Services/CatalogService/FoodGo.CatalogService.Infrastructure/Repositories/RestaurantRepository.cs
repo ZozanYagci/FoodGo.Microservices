@@ -41,6 +41,13 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
             _context.Restaurants.Remove(restaurant);
         }
 
+        public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+
+            return await _context.Restaurants
+                .AnyAsync(r => r.Id == id, cancellationToken);
+        }
+
         public async Task<Restaurant?> GetByIdAsync(Guid Id, bool tracking = true)
         {
             var query = _context.Restaurants.AsQueryable();

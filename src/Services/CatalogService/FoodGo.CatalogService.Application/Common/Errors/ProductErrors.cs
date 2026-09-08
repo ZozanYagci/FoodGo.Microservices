@@ -9,6 +9,9 @@ namespace FoodGo.CatalogService.Application.Common.Errors
 {
     public static class ProductErrors
     {
+
+        #region Validation
+
         public static Error NameCannotBeEmpty =>
             Error.Validation(
                 "Product.Name.Empty",
@@ -29,20 +32,28 @@ namespace FoodGo.CatalogService.Application.Common.Errors
                 "Product.Restaurant.Required",
                 "Restaurant is required.");
 
-        public static Error ImageCannotBeEmpty =>
-            Error.Validation(
-                "Product.Image.Empty",
-                "Image url cannot be empty.");
+        #endregion
 
-        public static Error ImageAlreadyExists =>
-            Error.Business(
-                "Product.Image.Duplicate",
-                "Image already exists.");
+        #region Business
 
-        public static Error OptionAlreadyExists =>
+        public static Error NameAlreadyExists(string name) =>
             Error.Business(
-                "Product.Option.Duplicate",
-                "Product option already exists.");
+                "Product.Name.Exists",
+                $"A product named '{name}' already exists for this restaurant");
+
+        public static Error RestaurantNotFound(Guid restaurantId) =>
+            Error.Business(
+                "Product.Restaurant.NotFound",
+            $"Restaurant with id '{restaurantId}' was not found.");
+
+        public static Error CategoryNotFound(Guid categoryId) =>
+            Error.Business(
+                "Product.Category.NotFound",
+                $"Category with id '{categoryId}' was not found");
+
+        #endregion
+
+        #region NotFound
 
         public static Error NotFound(Guid id) =>
             Error.NotFound(
@@ -50,3 +61,4 @@ namespace FoodGo.CatalogService.Application.Common.Errors
                 $"Product with id '{id}' not found.");
     }
 }
+#endregion

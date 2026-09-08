@@ -23,34 +23,16 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
             _context.Categories.Add(category);
         }
 
-        public void Delete(Category category)
+        public async Task<bool> ExistsAsync(Guid categoryId, CancellationToken cancellationToken = default)
         {
-            _context.Categories.Remove(category);
-        }
-
-        public async Task<List<Category>> GetAllAsync()
-        {
-            return await _context.Categories.AsNoTracking().ToListAsync();
-
+            return await _context.Categories.AnyAsync(
+                category => category.Id == categoryId,
+                cancellationToken);
         }
 
         public async Task<Category?> GetByIdAsync(Guid Id)
         {
             return await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == Id);
-        }
-
-        public IQueryable<Category> Query(bool tracking = false)
-        {
-            var query = _context.Categories.AsQueryable();
-
-            return tracking ? query : query.AsNoTracking();
-
-        }
-
-        public void Update(Category category)
-        {
-            _context.Categories.Update(category);
-
         }
     }
 }
