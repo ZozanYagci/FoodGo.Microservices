@@ -69,6 +69,7 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Products.Commands
             await _productRepository.DidNotReceive().ExistsAsync(
                 Arg.Any<Guid>(),
                 Arg.Any<string>(),
+                null,
                 Arg.Any<CancellationToken>());
 
             _productRepository.DidNotReceive()
@@ -101,6 +102,7 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Products.Commands
                .ExistsAsync(
                    Arg.Any<Guid>(),
                    Arg.Any<string>(),
+                   null,
                    Arg.Any<CancellationToken>());
 
             _productRepository
@@ -123,7 +125,11 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Products.Commands
             _categoryRepository.ExistsAsync(command.CategoryId, Arg.Any<CancellationToken>())
                 .Returns(true);
 
-            _productRepository.ExistsAsync(command.RestaurantId, command.Name, Arg.Any<CancellationToken>())
+            _productRepository.ExistsAsync(
+                command.RestaurantId,
+                command.Name,
+                null,
+                Arg.Any<CancellationToken>())
                 .Returns(true);
 
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -149,7 +155,11 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Products.Commands
             _categoryRepository.ExistsAsync(command.CategoryId, Arg.Any<CancellationToken>())
                 .Returns(true);
 
-            _productRepository.ExistsAsync(command.RestaurantId, command.Name, Arg.Any<CancellationToken>())
+            _productRepository.ExistsAsync(
+                command.RestaurantId,
+                command.Name,
+                null,
+                Arg.Any<CancellationToken>())
                 .Returns(false);
 
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -171,7 +181,11 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Products.Commands
             _categoryRepository.ExistsAsync(command.CategoryId, Arg.Any<CancellationToken>())
                 .Returns(true);
 
-            _productRepository.ExistsAsync(command.RestaurantId, command.Name, Arg.Any<CancellationToken>())
+            _productRepository.ExistsAsync(
+                command.RestaurantId,
+                command.Name,
+                null,
+                Arg.Any<CancellationToken>())
                 .Returns(false);
 
             await _handler.Handle(command, CancellationToken.None);
@@ -199,7 +213,11 @@ namespace FoodGo.CatalogService.Application.Tests.Features.Products.Commands
             _categoryRepository.ExistsAsync(command.CategoryId, Arg.Any<CancellationToken>())
                 .Returns(true);
 
-            _productRepository.ExistsAsync(command.RestaurantId, command.Name, Arg.Any<CancellationToken>())
+            _productRepository.ExistsAsync(
+                command.RestaurantId,
+                command.Name,
+                null,
+                Arg.Any<CancellationToken>())
                 .Returns(false);
 
             await _handler.Handle(command, CancellationToken.None);

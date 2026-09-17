@@ -23,11 +23,12 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
             _context.Products.Add(product);
         }
 
-        public async Task<bool> ExistsAsync(Guid restaurantId, string name, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsAsync(Guid restaurantId, string name, Guid? excludeProductId = null, CancellationToken cancellationToken = default)
         {
             return await _context.Products.AnyAsync(
                 p => p.RestaurantId == restaurantId &&
-                p.Name == name, cancellationToken);
+                p.Name == name &&
+                (!excludeProductId.HasValue || p.Id != excludeProductId.Value), cancellationToken);
         }
 
         public async Task<Product?> GetByIdAsync(Guid Id, CancellationToken cancellationToken = default)

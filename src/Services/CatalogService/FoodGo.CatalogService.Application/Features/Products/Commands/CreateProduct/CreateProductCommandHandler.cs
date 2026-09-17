@@ -53,7 +53,7 @@ namespace FoodGo.CatalogService.Application.Features.Products.Commands.CreatePro
             var productExists = await _productRepository.ExistsAsync(
                 command.RestaurantId,
                 command.Name,
-                cancellationToken);
+                cancellationToken: cancellationToken);
 
             if (productExists)
             {
