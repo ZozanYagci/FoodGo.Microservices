@@ -17,6 +17,9 @@ namespace FoodGo.CatalogService.Domain.Entities
         public Guid RestaurantId { get; private set; }
         public bool IsActive { get; private set; }
 
+        public bool IsDeleted { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
+
 
         private readonly List<ProductPrice> _prices = new();
         private readonly List<ProductImage> _images = new();
@@ -174,6 +177,17 @@ namespace FoodGo.CatalogService.Domain.Entities
             if (!IsActive) return;
 
             IsActive = false;
+            TouchUpdated();
+        }
+
+        public void Delete()
+        {
+            if (IsDeleted)
+                return;
+
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+
             TouchUpdated();
         }
     }
