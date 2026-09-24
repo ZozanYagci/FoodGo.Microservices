@@ -27,16 +27,18 @@ namespace FoodGo.CatalogService.Infrastructure.Repositories
         {
             return await _context.Products.AnyAsync(
                 p => p.RestaurantId == restaurantId &&
-                p.Name == name &&
+                p.Name == name && !p.IsDeleted &&
                 (!excludeProductId.HasValue || p.Id != excludeProductId.Value), cancellationToken);
         }
 
-        public async Task<Product?> GetByIdAsync(Guid Id, CancellationToken cancellationToken = default)
+        public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.Products
                 .Include(p => p.Prices)
                 .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == Id, cancellationToken);
+                .Include(p => p.Options)
+                .FirstOrDefaultAsync(
+                p => p.Id == id && !p.IsDeleted, cancellationToken);
         }
     }
 }
